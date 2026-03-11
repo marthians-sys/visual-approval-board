@@ -48,26 +48,27 @@ commentTextInput.addEventListener('keydown', e => {
 const approveOverlay = document.getElementById('approve-overlay');
 const approveNameInput = document.getElementById('approve-name-input');
 const approveSavedList = document.getElementById('approve-saved-list');
-const APPROVERS_KEY = 'basewear_approvers';
 let approveCallback = null;
 let selectedApprover = null;
 
+function _approversKey() {
+  return currentProjectId ? 'basewear_approvers_' + currentProjectId : 'basewear_approvers';
+}
+
 function getSavedApprovers() {
   try {
-    return JSON.parse(localStorage.getItem(APPROVERS_KEY) || '[]');
+    return JSON.parse(localStorage.getItem(_approversKey()) || '[]');
   } catch(_) { return []; }
 }
 
 function saveApprover(name) {
   if (!name) return;
   const list = getSavedApprovers();
-  // Move to front if exists, or add
   const idx = list.indexOf(name);
   if (idx >= 0) list.splice(idx, 1);
   list.unshift(name);
-  // Keep max 10
   if (list.length > 10) list.length = 10;
-  localStorage.setItem(APPROVERS_KEY, JSON.stringify(list));
+  localStorage.setItem(_approversKey(), JSON.stringify(list));
 }
 
 function openApproveModal(callback) {
@@ -345,6 +346,7 @@ cvs.addEventListener('drop', e => {
 // ── Board click handling ──
 
 function addBoardAtSide(boardIndex, side) {
+  if (typeof hasSubPagesBlock === 'function' && hasSubPagesBlock()) return;
   const ref = boards[boardIndex];
   let x, y;
 

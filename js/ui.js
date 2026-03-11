@@ -12,6 +12,38 @@ function resize() {
 }
 window.addEventListener('resize', resize);
 
+// ── Sub-page block helper ──
+
+function hasSubPagesBlock() {
+  const p = pages[currentPageIndex];
+  if (currentSubPageIndex < 0 && p.subPages && p.subPages.length > 0) {
+    showToast('Přidejte plátna do podstránek');
+    return true;
+  }
+  return false;
+}
+
+function showToast(msg) {
+  let toast = document.getElementById('toast-msg');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast-msg';
+    toast.style.cssText = `
+      position:fixed; bottom:56px; left:50%; transform:translateX(-50%);
+      padding:10px 22px; border-radius:10px;
+      background:rgba(30,30,30,0.88); color:#fff;
+      font:500 13px 'Outfit',sans-serif; letter-spacing:0.02em;
+      z-index:9999; pointer-events:none; opacity:0;
+      transition:opacity 0.25s;
+    `;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => { toast.style.opacity = '0'; }, 2200);
+}
+
 // ── Add board (via modal) ──
 
 const modalOverlay = document.getElementById('modal-overlay');
@@ -19,11 +51,7 @@ const boardTitleInput = document.getElementById('board-title-input');
 
 document.getElementById('btn-add').addEventListener('click', () => {
   // Block board creation on pages that have sub-pages
-  const p = pages[currentPageIndex];
-  if (currentSubPageIndex < 0 && p.subPages && p.subPages.length > 0) {
-    alert('Tato stránka má podkategorie. Plátna lze vytvářet pouze v podkategoriích.');
-    return;
-  }
+  if (hasSubPagesBlock()) return;
   boardTitleInput.value = '';
   modalOverlay.classList.add('visible');
   setTimeout(() => boardTitleInput.focus(), 50);
@@ -483,7 +511,7 @@ document.getElementById('new-project-create').addEventListener('click', () => {
   if (pendingNewProjectLogo) {
     // Save brand data to the new project's localStorage
     const projectData = {
-      pages: [{ name: 'Stránka 1', boards: [], panX: 0, panY: 0, scale: 1 }],
+      pages: createDefaultPages(),
       currentPageIndex: 0,
       currentSubPageIndex: -1,
       brandName: name
@@ -508,7 +536,7 @@ document.getElementById('new-project-create').addEventListener('click', () => {
   } else {
     // Save brand name
     const projectData = {
-      pages: [{ name: 'Stránka 1', boards: [], panX: 0, panY: 0, scale: 1 }],
+      pages: createDefaultPages(),
       currentPageIndex: 0,
       currentSubPageIndex: -1,
       brandName: name

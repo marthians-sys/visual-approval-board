@@ -41,25 +41,40 @@ const BOARD_GAP = 60;
 const _currentProj = projectsList.find(p => p.id === currentProjectId);
 brandName = saved?.brandName ?? (_currentProj ? _currentProj.name : '');
 
+// Default clothing category pages for new projects
+const DEFAULT_PAGES = [
+  'Trička', 'Mikiny', 'Kalhoty', 'Bundy',
+  'Kraťasy', 'Doplňky', 'Boty', 'Tašky'
+];
+
+function createDefaultPages() {
+  return DEFAULT_PAGES.map(name => ({
+    name,
+    boards: [],
+    panX: 0,
+    panY: 0,
+    scale: 1
+  }));
+}
+
 // Pages system
 let pages = saved?.pages ?? null;
 let currentPageIndex = saved?.currentPageIndex ?? 0;
 let currentSubPageIndex = saved?.currentSubPageIndex ?? -1;
 
 if (!pages) {
-  pages = [{
-    name: 'Stránka 1',
-    boards: [],
-    panX: 0,
-    panY: 0,
-    scale: 1
-  }];
-  // Migrate old single-page data to first page
-  if (saved?.boards && saved.boards.length > 0) {
-    pages[0].boards = saved.boards;
-    pages[0].panX = saved?.panX ?? 0;
-    pages[0].panY = saved?.panY ?? 0;
-    pages[0].scale = saved?.scale ?? 1;
+  if (currentProjectId) {
+    pages = createDefaultPages();
+    // Migrate old single-page data to first page
+    if (saved?.boards && saved.boards.length > 0) {
+      pages[0].boards = saved.boards;
+      pages[0].panX = saved?.panX ?? 0;
+      pages[0].panY = saved?.panY ?? 0;
+      pages[0].scale = saved?.scale ?? 1;
+    }
+  } else {
+    // No project — empty pages, just show projects screen
+    pages = [{ name: '', boards: [], panX: 0, panY: 0, scale: 1 }];
   }
 }
 
@@ -367,6 +382,7 @@ function switchToProject(projectId) {
 function createNewProject(name) {
   const id = 'proj_' + Date.now();
   projectsList.push({ id, name: name || 'Nový projekt', created: Date.now() });
+  localStorage.removeItem('basewear_projects_cleared');
   saveProjectsList();
   switchToProject(id);
 }
@@ -375,6 +391,7 @@ function deleteProject(projectId) {
   projectsList = projectsList.filter(p => p.id !== projectId);
   // Remove data
   localStorage.removeItem('basewear_data_' + projectId);
+  localStorage.removeItem('basewear_approvers_' + projectId);
   // Delete IDB
   try { indexedDB.deleteDatabase('basewear_images_' + projectId); } catch(_) {}
   // Delete from Firebase
@@ -389,6 +406,8 @@ function deleteProject(projectId) {
     } else {
       currentProjectId = null;
       localStorage.removeItem('basewear_current_project');
+      // Mark that user intentionally cleared all projects (prevent Firebase from restoring them)
+      localStorage.setItem('basewear_projects_cleared', 'true');
       location.reload();
     }
   }

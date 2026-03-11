@@ -748,7 +748,6 @@ html, body {
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: var(--radius);
   cursor: pointer;
-  transition: all 0.2s;
   overflow: hidden;
   position: relative;
 }
@@ -756,7 +755,6 @@ html, body {
 .project-item:hover {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
   border-color: rgba(26, 26, 26, 0.1);
-  transform: translateY(-2px);
 }
 
 .project-item.active {

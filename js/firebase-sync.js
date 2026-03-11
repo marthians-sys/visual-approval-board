@@ -361,31 +361,42 @@ function firebaseStartSync() {
   createSyncIndicator();
   setSyncStatus('syncing');
 
-  // First: check if remote has a projects list and adopt it if this is a new device
+  // Check if user intentionally cleared all projects
+  const projectsCleared = localStorage.getItem('basewear_projects_cleared');
+  if (projectsCleared) {
+    // User deleted all projects — push empty list to remote and clear the flag
+    localStorage.removeItem('basewear_projects_cleared');
+  }
+
+  // First: check if remote has a projects list and merge/adopt as needed
   db.collection('meta').doc('projects').get().then((doc) => {
     if (doc.exists) {
       const data = doc.data();
       if (data.list && data.list.length > 0) {
         const remoteProjects = data.list;
-        // Check if current local project exists in remote list
-        const localExistsInRemote = remoteProjects.find(p => p.id === currentProjectId);
-        if (!localExistsInRemote) {
-          // This is a new device — adopt remote projects
-          console.log('[Firebase] New device detected, adopting remote projects...');
-          projectsList = remoteProjects;
-          localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
-          // Switch to first remote project
-          const targetProject = remoteProjects[0].id;
-          localStorage.setItem('basewear_current_project', targetProject);
-          // Remove the auto-created local project data
-          if (currentProjectId) {
-            localStorage.removeItem('basewear_data_' + currentProjectId);
-            try { indexedDB.deleteDatabase('basewear_images_' + currentProjectId); } catch(_) {}
-          }
-          location.reload();
-          return;
+
+        // If user just cleared all projects, don't adopt remote — push empty list
+        if (projectsCleared) {
+          console.log('[Firebase] Projects were intentionally cleared, syncing empty list to remote');
+          // Will be saved after _syncInitDone via firebaseSaveProjectsList
         } else {
-          // Local project exists in remote — merge any missing remote projects
+          // Check if ANY local project exists in remote (= existing device)
+          const anyLocalInRemote = projectsList.some(lp => remoteProjects.find(rp => rp.id === lp.id));
+          const isNewDevice = !anyLocalInRemote && projectsList.length === 0;
+
+          if (isNewDevice && !currentProjectId) {
+            // Truly a new device with no real data — adopt remote projects
+            console.log('[Firebase] New device detected, adopting remote projects...');
+            projectsList = remoteProjects;
+            localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+            const targetProject = remoteProjects[0].id;
+            localStorage.setItem('basewear_current_project', targetProject);
+            localStorage.setItem('basewear_in_project', 'true');
+            location.reload();
+            return;
+          } else {
+          // Existing device — merge: add remote projects we don't have locally,
+          // and add local projects that remote doesn't have yet
           let changed = false;
           remoteProjects.forEach(rp => {
             if (!projectsList.find(lp => lp.id === rp.id)) {
@@ -395,6 +406,13 @@ function firebaseStartSync() {
           });
           if (changed) {
             localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+          }
+          // Also push any local-only projects to remote
+          const localOnly = projectsList.filter(lp => !remoteProjects.find(rp => rp.id === lp.id));
+          if (localOnly.length > 0) {
+            console.log('[Firebase] Uploading', localOnly.length, 'new local project(s) to remote');
+            // Will be saved after _syncInitDone via firebaseSaveProjectsList
+          }
           }
         }
       }
@@ -408,12 +426,8 @@ function firebaseStartSync() {
     // Mark sync as initialized — saves are now allowed
     _syncInitDone = true;
 
-    // If no remote data existed for meta/projects, upload ours now
-    db.collection('meta').doc('projects').get().then((doc) => {
-      if (!doc.exists) {
-        firebaseSaveProjectsList();
-      }
-    });
+    // Always sync projects list to remote (merges local-only projects)
+    firebaseSaveProjectsList();
 
     // Start real-time listeners
     _startStructureListener();
