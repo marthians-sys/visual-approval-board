@@ -344,6 +344,43 @@ cvs.addEventListener('drop', e => {
 
 // ── Board click handling ──
 
+function addBoardAtSide(boardIndex, side) {
+  const ref = boards[boardIndex];
+  const newBoard = {
+    x: side === 'left' ? ref.x - A4_W - BOARD_GAP : ref.x + ref.w + BOARD_GAP,
+    y: ref.y,
+    w: A4_W, h: A4_H,
+    label: `#${boards.length + 1}`,
+    title: ''
+  };
+
+  // Shift other boards to make room
+  if (side === 'left') {
+    // Push all boards at or left of insertion point further left
+    boards.forEach(b => {
+      if (b.x < ref.x) {
+        b.x -= (A4_W + BOARD_GAP);
+      }
+    });
+    boards.splice(boardIndex, 0, newBoard);
+  } else {
+    // Push all boards right of insertion point further right
+    boards.forEach(b => {
+      if (b !== ref && b.x > ref.x) {
+        b.x += (A4_W + BOARD_GAP);
+      }
+    });
+    boards.splice(boardIndex + 1, 0, newBoard);
+  }
+
+  // Re-label all boards
+  boards.forEach((b, i) => { b.label = `#${i + 1}`; });
+
+  saveState();
+  draw();
+  renderPageList();
+}
+
 function handleBoardButtonClick(screenX, screenY) {
   // Check pin clicks — show pin context menu
   for (let i = boards.length - 1; i >= 0; i--) {
@@ -404,6 +441,16 @@ function handleBoardButtonClick(screenX, screenY) {
           return true;
         }
       }
+    }
+
+    // Side "+" buttons — add board left or right
+    if (b._btnAddLeft && hitCircle(screenX, screenY, b._btnAddLeft)) {
+      addBoardAtSide(i, 'left');
+      return true;
+    }
+    if (b._btnAddRight && hitCircle(screenX, screenY, b._btnAddRight)) {
+      addBoardAtSide(i, 'right');
+      return true;
     }
 
     if (hitCircle(screenX, screenY, b._btnApprove)) {

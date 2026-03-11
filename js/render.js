@@ -590,6 +590,62 @@ function drawBoards(w, h) {
       ctx.lineTo(pCx, addBtnCY + pSize);
       ctx.stroke();
     }
+
+    // ── Side "+" buttons (add board left / right) ──
+    const sideBtnSize = 32 * scale;
+    const sideBtnGap = 16 * scale;
+    const sideBtnCY = sy + sh / 2;
+
+    // Left "+" button
+    const leftBtnX = sx - sideBtnGap - sideBtnSize;
+    const leftBtnY = sideBtnCY - sideBtnSize / 2;
+    b._btnAddLeft = { x: leftBtnX, y: leftBtnY, w: sideBtnSize, h: sideBtnSize };
+
+    ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
+    ctx.beginPath();
+    ctx.arc(leftBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(42, 42, 42, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(leftBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    const sps = sideBtnSize * 0.22;
+    ctx.strokeStyle = 'rgba(42, 42, 42, 0.3)';
+    ctx.lineWidth = Math.max(1.5, 2 * scale);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(leftBtnX + sideBtnSize / 2 - sps, sideBtnCY);
+    ctx.lineTo(leftBtnX + sideBtnSize / 2 + sps, sideBtnCY);
+    ctx.moveTo(leftBtnX + sideBtnSize / 2, sideBtnCY - sps);
+    ctx.lineTo(leftBtnX + sideBtnSize / 2, sideBtnCY + sps);
+    ctx.stroke();
+
+    // Right "+" button
+    const rightBtnX = sx + sw + sideBtnGap;
+    const rightBtnY = sideBtnCY - sideBtnSize / 2;
+    b._btnAddRight = { x: rightBtnX, y: rightBtnY, w: sideBtnSize, h: sideBtnSize };
+
+    ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
+    ctx.beginPath();
+    ctx.arc(rightBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(42, 42, 42, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(rightBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(42, 42, 42, 0.3)';
+    ctx.lineWidth = Math.max(1.5, 2 * scale);
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(rightBtnX + sideBtnSize / 2 - sps, sideBtnCY);
+    ctx.lineTo(rightBtnX + sideBtnSize / 2 + sps, sideBtnCY);
+    ctx.moveTo(rightBtnX + sideBtnSize / 2, sideBtnCY - sps);
+    ctx.lineTo(rightBtnX + sideBtnSize / 2, sideBtnCY + sps);
+    ctx.stroke();
   });
 }
 
