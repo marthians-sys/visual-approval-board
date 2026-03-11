@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Visual Approval Board — Basewear</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@300;400;500&family=Outfit:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css?v=4">
+</head>
+<body>
+
+  <canvas id="canvas"></canvas>
+
+  <div id="crosshair"></div>
+
+  <!-- Sidebar -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <span class="sb-title">STRÁNKY</span>
+      <button class="sb-add" id="sb-add-page" title="Nová stránka">+</button>
+    </div>
+    <div id="page-list"></div>
+    <div id="sidebar-footer">Visual Approval Board</div>
+  </div>
+  <button id="sidebar-toggle" class="open">‹</button>
+
+  <div id="hud">
+    <img id="hud-brand-logo" class="hud-logo" style="display:none" alt="logo">
+    <span class="sep" id="hud-logo-sep" style="display:none"></span>
+    <span class="title" id="hud-brand-name">BASEWEAR</span>
+    <span class="sep"></span>
+    <button class="hud-add-btn" id="hud-add" title="Nastavit název a logo">+</button>
+  </div>
+
+  <div id="ctx-menu">
+    <button class="ctx-item" id="ctx-move">Přesunout</button>
+    <button class="ctx-item" id="ctx-add-png">Přidat PNG</button>
+    <div class="ctx-sep"></div>
+    <button class="ctx-item" id="ctx-pin">Přidat pin</button>
+    <div class="ctx-sep"></div>
+    <button class="ctx-item" id="ctx-rename">Změnit název</button>
+    <button class="ctx-item" id="ctx-edit-photo">Změnit foto</button>
+    <button class="ctx-item danger" id="ctx-delete">Smazat</button>
+  </div>
+
+  <div id="pin-menu">
+    <button class="ctx-item" id="pin-edit">Upravit</button>
+    <div class="ctx-sep"></div>
+    <button class="ctx-item" id="pin-move">Přesunout</button>
+    <div class="ctx-sep"></div>
+    <button class="ctx-item danger" id="pin-delete">Smazat</button>
+  </div>
+
+  <div id="free-img-menu">
+    <button class="ctx-item" id="fimg-lock">Uzamknout</button>
+    <div class="ctx-sep"></div>
+    <button class="ctx-item danger" id="fimg-delete">Smazat</button>
+  </div>
+
+  <!-- Hidden file input for logo -->
+  <input type="file" id="logo-input" accept="image/*" style="display:none">
+
+  <!-- Modal for brand settings -->
+  <div id="brand-overlay">
+    <div id="brand-modal">
+      <h3>NASTAVENÍ</h3>
+      <label for="brand-name-input">Název značky</label>
+      <input type="text" id="brand-name-input" placeholder="např.: BASEWEAR">
+      <label for="brand-logo-input" style="margin-top:12px">Logo</label>
+      <div class="brand-logo-row">
+        <button class="modal-btn" id="brand-logo-upload">Nahrát</button>
+        <span id="brand-logo-status" class="info" style="font-size:11px;color:var(--accent-mid)">žádné logo</span>
+      </div>
+      <input type="file" id="brand-logo-file" accept="image/*" style="display:none">
+      <div class="modal-actions">
+        <button class="modal-btn" id="brand-cancel">Zrušit</button>
+        <button class="modal-btn primary" id="brand-save">Uložit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for new board -->
+  <div id="modal-overlay">
+    <div id="modal">
+      <h3>NOVÉ PLÁTNO</h3>
+      <label for="board-title-input">Název plátna</label>
+      <input type="text" id="board-title-input" placeholder="např.: Lookbook SS26">
+      <div class="modal-actions">
+        <button class="modal-btn" id="modal-cancel">Zrušit</button>
+        <button class="modal-btn primary" id="modal-create">Vytvořit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for comment -->
+  <div id="comment-overlay">
+    <div id="comment-modal">
+      <h3>KOMENTÁŘ</h3>
+      <label for="comment-title-input">Název</label>
+      <input type="text" id="comment-title-input" placeholder="např.: Barva">
+      <label for="comment-text-input" style="margin-top:12px">Text</label>
+      <textarea id="comment-text-input" rows="4" placeholder="Napište komentář..."></textarea>
+      <div class="modal-actions">
+        <button class="modal-btn" id="comment-cancel">Zrušit</button>
+        <button class="modal-btn primary" id="comment-save">Uložit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for approval name -->
+  <div id="approve-overlay">
+    <div id="approve-modal">
+      <h3>SCHVÁLENÍ</h3>
+      <div id="approve-saved-list"></div>
+      <label for="approve-name-input" style="margin-top:12px">Nové jméno</label>
+      <input type="text" id="approve-name-input" placeholder="např.: Jan Novák">
+      <div class="modal-actions">
+        <button class="modal-btn" id="approve-cancel">Zrušit</button>
+        <button class="modal-btn primary" id="approve-confirm">Schválit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Close button — top-right -->
+  <button id="btn-close" title="K projektům">✕</button>
+
+  <!-- Projects screen -->
+  <div id="projects-screen">
+    <div id="projects-container">
+      <div id="projects-header">
+        <span class="projects-title">PROJEKTY</span>
+      </div>
+      <div id="projects-list"></div>
+      <input type="file" id="project-logo-input" accept="image/*" style="display:none">
+    </div>
+  </div>
+
+  <div id="controls-bottom">
+    <button class="ctrl-btn wide" id="btn-add" title="Add board">+ PLÁTNO</button>
+    <button class="ctrl-btn wide" id="btn-reset" title="Reset view">RESET</button>
+  </div>
+
+  <!-- Scripts: order matters (shared global scope) -->
+  <script>var _t='?t='+Date.now();</script>
+  <script>document.write('<scr'+'ipt src="js/state.js'+_t+'"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="js/render.js'+_t+'"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="js/sidebar.js'+_t+'"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="js/interactions.js'+_t+'"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="js/ui.js'+_t+'"><\/scr'+'ipt>');</script>
+</body>
+</html>
