@@ -346,32 +346,28 @@ cvs.addEventListener('drop', e => {
 
 function addBoardAtSide(boardIndex, side) {
   const ref = boards[boardIndex];
-  const newBoard = {
-    x: side === 'left' ? ref.x - A4_W - BOARD_GAP : ref.x + ref.w + BOARD_GAP,
-    y: ref.y,
+  let x, y;
+
+  if (side === 'left') {
+    x = ref.x - A4_W - BOARD_GAP;
+    y = ref.y;
+  } else if (side === 'right') {
+    x = ref.x + ref.w + BOARD_GAP;
+    y = ref.y;
+  } else if (side === 'top') {
+    x = ref.x;
+    y = ref.y - A4_H - BOARD_GAP;
+  } else {
+    x = ref.x;
+    y = ref.y + ref.h + BOARD_GAP;
+  }
+
+  boards.push({
+    x, y,
     w: A4_W, h: A4_H,
     label: `#${boards.length + 1}`,
     title: ''
-  };
-
-  // Shift other boards to make room
-  if (side === 'left') {
-    // Push all boards at or left of insertion point further left
-    boards.forEach(b => {
-      if (b.x < ref.x) {
-        b.x -= (A4_W + BOARD_GAP);
-      }
-    });
-    boards.splice(boardIndex, 0, newBoard);
-  } else {
-    // Push all boards right of insertion point further right
-    boards.forEach(b => {
-      if (b !== ref && b.x > ref.x) {
-        b.x += (A4_W + BOARD_GAP);
-      }
-    });
-    boards.splice(boardIndex + 1, 0, newBoard);
-  }
+  });
 
   // Re-label all boards
   boards.forEach((b, i) => { b.label = `#${i + 1}`; });
@@ -443,13 +439,21 @@ function handleBoardButtonClick(screenX, screenY) {
       }
     }
 
-    // Side "+" buttons — add board left or right
+    // Side "+" buttons — add board on any side
     if (b._btnAddLeft && hitCircle(screenX, screenY, b._btnAddLeft)) {
       addBoardAtSide(i, 'left');
       return true;
     }
     if (b._btnAddRight && hitCircle(screenX, screenY, b._btnAddRight)) {
       addBoardAtSide(i, 'right');
+      return true;
+    }
+    if (b._btnAddTop && hitCircle(screenX, screenY, b._btnAddTop)) {
+      addBoardAtSide(i, 'top');
+      return true;
+    }
+    if (b._btnAddBottom && hitCircle(screenX, screenY, b._btnAddBottom)) {
+      addBoardAtSide(i, 'bottom');
       return true;
     }
 

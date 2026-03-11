@@ -591,61 +591,73 @@ function drawBoards(w, h) {
       ctx.stroke();
     }
 
-    // ── Side "+" buttons (add board left / right) ──
+    // ── Side "+" buttons (add board on all 4 sides) ──
     const sideBtnSize = 32 * scale;
     const sideBtnGap = 16 * scale;
-    const sideBtnCY = sy + sh / 2;
-
-    // Left "+" button
-    const leftBtnX = sx - sideBtnGap - sideBtnSize;
-    const leftBtnY = sideBtnCY - sideBtnSize / 2;
-    b._btnAddLeft = { x: leftBtnX, y: leftBtnY, w: sideBtnSize, h: sideBtnSize };
-
-    ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
-    ctx.beginPath();
-    ctx.arc(leftBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(42, 42, 42, 0.12)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(leftBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
-    ctx.stroke();
-
     const sps = sideBtnSize * 0.22;
-    ctx.strokeStyle = 'rgba(42, 42, 42, 0.3)';
-    ctx.lineWidth = Math.max(1.5, 2 * scale);
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(leftBtnX + sideBtnSize / 2 - sps, sideBtnCY);
-    ctx.lineTo(leftBtnX + sideBtnSize / 2 + sps, sideBtnCY);
-    ctx.moveTo(leftBtnX + sideBtnSize / 2, sideBtnCY - sps);
-    ctx.lineTo(leftBtnX + sideBtnSize / 2, sideBtnCY + sps);
-    ctx.stroke();
+    b._btnAddLeft = null;
+    b._btnAddRight = null;
+    b._btnAddTop = null;
+    b._btnAddBottom = null;
 
-    // Right "+" button
-    const rightBtnX = sx + sw + sideBtnGap;
-    const rightBtnY = sideBtnCY - sideBtnSize / 2;
-    b._btnAddRight = { x: rightBtnX, y: rightBtnY, w: sideBtnSize, h: sideBtnSize };
+    // Check adjacency — hide "+" if a board is already next to this side
+    const threshold = BOARD_GAP * 1.5;
+    let hasLeft = false, hasRight = false, hasTop = false, hasBottom = false;
+    boards.forEach(other => {
+      if (other === b) return;
+      const overlapH = other.y < b.y + b.h && other.y + other.h > b.y;
+      const overlapV = other.x < b.x + b.w && other.x + other.w > b.x;
+      if (overlapH && Math.abs((other.x + other.w) - b.x) < threshold) hasLeft = true;
+      if (overlapH && Math.abs(other.x - (b.x + b.w)) < threshold) hasRight = true;
+      if (overlapV && Math.abs((other.y + other.h) - b.y) < threshold) hasTop = true;
+      if (overlapV && Math.abs(other.y - (b.y + b.h)) < threshold) hasBottom = true;
+    });
 
-    ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
-    ctx.beginPath();
-    ctx.arc(rightBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(42, 42, 42, 0.12)';
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.arc(rightBtnX + sideBtnSize / 2, sideBtnCY, sideBtnSize / 2, 0, Math.PI * 2);
-    ctx.stroke();
+    function drawSidePlusBtn(cx, cy) {
+      ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
+      ctx.beginPath();
+      ctx.arc(cx, cy, sideBtnSize / 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(42, 42, 42, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(cx, cy, sideBtnSize / 2, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(42, 42, 42, 0.3)';
+      ctx.lineWidth = Math.max(1.5, 2 * scale);
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx - sps, cy);
+      ctx.lineTo(cx + sps, cy);
+      ctx.moveTo(cx, cy - sps);
+      ctx.lineTo(cx, cy + sps);
+      ctx.stroke();
+    }
 
-    ctx.strokeStyle = 'rgba(42, 42, 42, 0.3)';
-    ctx.lineWidth = Math.max(1.5, 2 * scale);
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(rightBtnX + sideBtnSize / 2 - sps, sideBtnCY);
-    ctx.lineTo(rightBtnX + sideBtnSize / 2 + sps, sideBtnCY);
-    ctx.moveTo(rightBtnX + sideBtnSize / 2, sideBtnCY - sps);
-    ctx.lineTo(rightBtnX + sideBtnSize / 2, sideBtnCY + sps);
-    ctx.stroke();
+    if (!hasLeft) {
+      const cx = sx - sideBtnGap - sideBtnSize / 2;
+      const cy = sy + sh / 2;
+      b._btnAddLeft = { x: cx - sideBtnSize / 2, y: cy - sideBtnSize / 2, w: sideBtnSize, h: sideBtnSize };
+      drawSidePlusBtn(cx, cy);
+    }
+    if (!hasRight) {
+      const cx = sx + sw + sideBtnGap + sideBtnSize / 2;
+      const cy = sy + sh / 2;
+      b._btnAddRight = { x: cx - sideBtnSize / 2, y: cy - sideBtnSize / 2, w: sideBtnSize, h: sideBtnSize };
+      drawSidePlusBtn(cx, cy);
+    }
+    if (!hasTop) {
+      const cx = sx + sw / 2;
+      const cy = sy - sideBtnGap - sideBtnSize / 2;
+      b._btnAddTop = { x: cx - sideBtnSize / 2, y: cy - sideBtnSize / 2, w: sideBtnSize, h: sideBtnSize };
+      drawSidePlusBtn(cx, cy);
+    }
+    if (!hasBottom) {
+      const cx = sx + sw / 2;
+      const cy = sy + sh + sideBtnGap + sideBtnSize / 2;
+      b._btnAddBottom = { x: cx - sideBtnSize / 2, y: cy - sideBtnSize / 2, w: sideBtnSize, h: sideBtnSize };
+      drawSidePlusBtn(cx, cy);
+    }
   });
 }
 

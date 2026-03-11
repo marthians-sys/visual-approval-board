@@ -332,7 +332,8 @@ function saveState() {
     if (key === '_img' || key === '_imgObjects' || key === '_screenRect' ||
         key === '_pinRects' || key === '_commentRects' || key === '_imgSlots' ||
         key === '_btnApprove' || key === '_btnReject' || key === '_btnComment' ||
-        key === '_btnAddComment' || key === 'dataURL' || key === 'images' ||
+        key === '_btnAddComment' || key === '_btnAddLeft' || key === '_btnAddRight' ||
+        key === '_btnAddTop' || key === '_btnAddBottom' || key === 'dataURL' || key === 'images' ||
         key === 'logoDataURL') return undefined;
     return value;
   });
