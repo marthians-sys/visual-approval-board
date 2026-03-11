@@ -343,7 +343,12 @@ function saveState() {
   if (_saveTimeout) clearTimeout(_saveTimeout);
   _saveTimeout = setTimeout(() => {
     saveIDBImages();
+    // Also save images to Firebase Storage
+    if (typeof firebaseSaveImages === 'function') firebaseSaveImages();
   }, 500);
+
+  // Sync structure to Firebase
+  if (typeof firebaseSaveStructure === 'function') firebaseSaveStructure();
 }
 
 // Init IndexedDB and load images
@@ -357,6 +362,7 @@ openIDB().then(() => {
 
 function saveProjectsList() {
   localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+  if (typeof firebaseSaveProjectsList === 'function') firebaseSaveProjectsList();
 }
 
 function switchToProject(projectId) {
@@ -383,6 +389,8 @@ function deleteProject(projectId) {
   localStorage.removeItem('basewear_data_' + projectId);
   // Delete IDB
   try { indexedDB.deleteDatabase('basewear_images_' + projectId); } catch(_) {}
+  // Delete from Firebase
+  if (typeof firebaseDeleteProject === 'function') firebaseDeleteProject(projectId);
   // Switch to first remaining project if current was deleted
   if (currentProjectId === projectId) {
     switchToProject(projectsList[0].id);

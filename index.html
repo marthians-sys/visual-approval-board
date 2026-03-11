@@ -145,12 +145,20 @@
     <button class="ctrl-btn wide" id="btn-reset" title="Reset view">RESET</button>
   </div>
 
+  <!-- Firebase SDK (compat) -->
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
   <!-- Scripts: order matters (shared global scope) -->
   <script>var _t='?t='+Date.now();</script>
+  <script>document.write('<scr'+'ipt src="js/firebase-config.js'+_t+'"><\/scr'+'ipt>');</script>
   <script>document.write('<scr'+'ipt src="js/state.js'+_t+'"><\/scr'+'ipt>');</script>
   <script>document.write('<scr'+'ipt src="js/render.js'+_t+'"><\/scr'+'ipt>');</script>
   <script>document.write('<scr'+'ipt src="js/sidebar.js'+_t+'"><\/scr'+'ipt>');</script>
   <script>document.write('<scr'+'ipt src="js/interactions.js'+_t+'"><\/scr'+'ipt>');</script>
   <script>document.write('<scr'+'ipt src="js/ui.js'+_t+'"><\/scr'+'ipt>');</script>
+  <script>document.write('<scr'+'ipt src="js/firebase-sync.js'+_t+'"><\/scr'+'ipt>');</script>
 </body>
 </html>
