@@ -2,12 +2,12 @@
 // Replace the config below with your Firebase project config
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCAZJGCpBipK0_qTe0Idw0UquuTPy1QHqM",
+  authDomain: "system-schvalovani-vizualu.firebaseapp.com",
+  projectId: "system-schvalovani-vizualu",
+  storageBucket: "system-schvalovani-vizualu.firebasestorage.app",
+  messagingSenderId: "605372267986",
+  appId: "1:605372267986:web:ed9f78221e872a84685c0b"
 };
 
 let firebaseReady = false;
