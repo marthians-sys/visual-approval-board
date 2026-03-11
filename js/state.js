@@ -375,6 +375,7 @@ function switchToProject(projectId) {
   }
   // Switch
   localStorage.setItem('basewear_current_project', projectId);
+  localStorage.setItem('basewear_in_project', 'true');
   location.reload();
 }
 
@@ -403,6 +404,7 @@ function deleteProject(projectId) {
   if (currentProjectId === projectId) {
     currentProjectId = projectsList[0].id;
     localStorage.setItem('basewear_current_project', currentProjectId);
+    localStorage.removeItem('basewear_in_project');
   }
 }
 

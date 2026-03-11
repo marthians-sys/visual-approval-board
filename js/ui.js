@@ -391,7 +391,8 @@ function renderProjectsList() {
 
     item.addEventListener('click', () => {
       if (proj.id === currentProjectId) {
-        projectsScreen.classList.add('hidden');
+        projectsScreen.classList.remove('visible');
+        localStorage.setItem('basewear_in_project', 'true');
       } else {
         switchToProject(proj.id);
       }
@@ -435,12 +436,15 @@ function renderProjectsList() {
 document.getElementById('btn-close').addEventListener('click', () => {
   saveState();
   renderProjectsList();
-  projectsScreen.classList.remove('hidden');
+  localStorage.removeItem('basewear_in_project');
+  projectsScreen.classList.add('visible');
 });
 
 // ── Init ──
 resize();
 
-// Show projects screen on startup
+// Show projects screen on startup only if user wasn't inside a project
 renderProjectsList();
-projectsScreen.classList.remove('hidden');
+if (!localStorage.getItem('basewear_in_project')) {
+  projectsScreen.classList.add('visible');
+}
