@@ -47,8 +47,9 @@ const BOARD_GAP = 60;
 // Default page names
 const DEFAULT_PAGES = ['Trička', 'Mikiny', 'Kalhoty', 'Kraťasy', 'Kšiltovky', 'Čepice', 'Ponožky'];
 
-// Brand name
-brandName = saved?.brandName ?? 'BASEWEAR';
+// Brand name — default to project name, not hardcoded
+const _currentProj = projectsList.find(p => p.id === currentProjectId);
+brandName = saved?.brandName ?? (_currentProj ? _currentProj.name : '');
 
 // Pages system — migrate old single-page data
 let pages = saved?.pages ?? null;
@@ -366,9 +367,11 @@ function saveProjectsList() {
 }
 
 function switchToProject(projectId) {
-  // Save current project first
-  saveState();
-  if (idb) saveIDBImages();
+  // Save current project first (only if it still exists)
+  if (projectsList.find(p => p.id === currentProjectId)) {
+    saveState();
+    if (idb) saveIDBImages();
+  }
   // Switch
   localStorage.setItem('basewear_current_project', projectId);
   location.reload();
