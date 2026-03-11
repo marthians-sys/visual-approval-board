@@ -82,10 +82,9 @@ function renderPageList() {
     delBtn.className = 'page-action-btn danger';
     delBtn.textContent = '✕';
     delBtn.title = 'Smazat';
-    const isDefault = DEFAULT_PAGES.includes(p.name);
     delBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (pages.length <= 1 || isDefault) return;
+      if (pages.length <= 1) return;
       pages.splice(i, 1);
       if (currentPageIndex >= pages.length) currentPageIndex = pages.length - 1;
       currentSubPageIndex = -1;
@@ -97,7 +96,7 @@ function renderPageList() {
 
     actions.appendChild(addSubBtn);
     actions.appendChild(renameBtn);
-    if (pages.length > 1 && !isDefault) actions.appendChild(delBtn);
+    if (pages.length > 1) actions.appendChild(delBtn);
 
     item.appendChild(name);
     item.appendChild(count);

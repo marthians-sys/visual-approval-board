@@ -44,26 +44,23 @@ const A4_W = 1122;
 const A4_H = 794;
 const BOARD_GAP = 60;
 
-// Default page names
-const DEFAULT_PAGES = ['Trička', 'Mikiny', 'Kalhoty', 'Kraťasy', 'Kšiltovky', 'Čepice', 'Ponožky'];
-
 // Brand name — default to project name, not hardcoded
 const _currentProj = projectsList.find(p => p.id === currentProjectId);
 brandName = saved?.brandName ?? (_currentProj ? _currentProj.name : '');
 
-// Pages system — migrate old single-page data
+// Pages system
 let pages = saved?.pages ?? null;
 let currentPageIndex = saved?.currentPageIndex ?? 0;
 let currentSubPageIndex = saved?.currentSubPageIndex ?? -1;
 
 if (!pages) {
-  pages = DEFAULT_PAGES.map(name => ({
-    name,
+  pages = [{
+    name: 'Stránka 1',
     boards: [],
     panX: 0,
     panY: 0,
     scale: 1
-  }));
+  }];
   // Migrate old single-page data to first page
   if (saved?.boards && saved.boards.length > 0) {
     pages[0].boards = saved.boards;
@@ -71,13 +68,6 @@ if (!pages) {
     pages[0].panY = saved?.panY ?? 0;
     pages[0].scale = saved?.scale ?? 1;
   }
-} else {
-  // Ensure all default pages exist
-  DEFAULT_PAGES.forEach(name => {
-    if (!pages.find(p => p.name === name)) {
-      pages.push({ name, boards: [], panX: 0, panY: 0, scale: 1 });
-    }
-  });
 }
 
 function currentPage() {
