@@ -394,16 +394,15 @@ function deleteProject(projectId) {
   try { indexedDB.deleteDatabase('basewear_images_' + projectId); } catch(_) {}
   // Delete from Firebase
   if (typeof firebaseDeleteProject === 'function') firebaseDeleteProject(projectId);
-  // If no projects left, create a fresh one
-  if (projectsList.length === 0) {
-    const id = 'proj_' + Date.now();
-    projectsList.push({ id, name: 'Nový projekt', created: Date.now() });
-  }
   saveProjectsList();
-  // If current project was deleted, update to first remaining (no reload)
+  // If current project was deleted
   if (currentProjectId === projectId) {
-    currentProjectId = projectsList[0].id;
-    localStorage.setItem('basewear_current_project', currentProjectId);
+    if (projectsList.length > 0) {
+      currentProjectId = projectsList[0].id;
+    } else {
+      currentProjectId = null;
+    }
+    localStorage.setItem('basewear_current_project', currentProjectId || '');
     localStorage.removeItem('basewear_in_project');
   }
 }
