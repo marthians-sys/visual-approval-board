@@ -100,6 +100,56 @@ html, body {
 }
 
 /* Brand modal */
+#new-project-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.25);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 400;
+}
+#new-project-overlay.visible { display: flex; }
+
+#new-project-modal {
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 32px;
+  min-width: 320px;
+  box-shadow: 0 16px 48px rgba(0,0,0,0.12);
+  font-family: var(--font-mono);
+}
+
+#new-project-modal h3 {
+  font-family: var(--font-display);
+  font-size: 22px;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+  font-weight: 400;
+  color: var(--accent);
+}
+
+#new-project-modal label {
+  display: block;
+  font-size: 11px;
+  color: var(--accent-mid);
+  margin-bottom: 4px;
+  font-weight: 300;
+}
+
+#new-project-modal input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--accent-dim);
+  border-radius: 8px;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--accent);
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
 #brand-overlay {
   position: fixed;
   inset: 0;

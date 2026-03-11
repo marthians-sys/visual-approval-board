@@ -427,11 +427,101 @@ function renderProjectsList() {
   newItem.appendChild(newBottom);
 
   newItem.addEventListener('click', () => {
-    createNewProject('Nový projekt');
+    openNewProjectModal();
   });
 
   projectsListEl.appendChild(newItem);
 }
+
+// ── New project modal ──
+
+const newProjectOverlay = document.getElementById('new-project-overlay');
+const newProjectNameInput = document.getElementById('new-project-name');
+const newProjectLogoBtn = document.getElementById('new-project-logo-btn');
+const newProjectLogoFile = document.getElementById('new-project-logo-file');
+const newProjectLogoStatus = document.getElementById('new-project-logo-status');
+let pendingNewProjectLogo = null;
+
+function openNewProjectModal() {
+  newProjectNameInput.value = '';
+  pendingNewProjectLogo = null;
+  newProjectLogoStatus.textContent = 'žádné logo';
+  newProjectOverlay.classList.add('visible');
+  setTimeout(() => newProjectNameInput.focus(), 50);
+}
+
+newProjectLogoBtn.addEventListener('click', () => {
+  newProjectLogoFile.click();
+});
+
+newProjectLogoFile.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    pendingNewProjectLogo = ev.target.result;
+    newProjectLogoStatus.textContent = file.name;
+  };
+  reader.readAsDataURL(file);
+  newProjectLogoFile.value = '';
+});
+
+document.getElementById('new-project-create').addEventListener('click', () => {
+  const name = newProjectNameInput.value.trim() || 'Nový projekt';
+  newProjectOverlay.classList.remove('visible');
+
+  // Create project with name
+  const id = 'proj_' + Date.now();
+  projectsList.push({ id, name, created: Date.now() });
+  saveProjectsList();
+
+  // If logo was selected, save it for the new project
+  if (pendingNewProjectLogo) {
+    // Save brand data to the new project's localStorage
+    const projectData = {
+      pages: [{ name: 'Stránka 1', boards: [], panX: 0, panY: 0, scale: 1 }],
+      currentPageIndex: 0,
+      currentSubPageIndex: -1,
+      brandName: name
+    };
+    localStorage.setItem('basewear_data_' + id, JSON.stringify(projectData));
+
+    // Save logo to the new project's IDB
+    const dbReq = indexedDB.open('basewear_images_' + id, 1);
+    dbReq.onupgradeneeded = () => { dbReq.result.createObjectStore('images'); };
+    dbReq.onsuccess = () => {
+      const db = dbReq.result;
+      const tx = db.transaction('images', 'readwrite');
+      tx.objectStore('images').put(pendingNewProjectLogo, 'logo');
+      tx.oncomplete = () => {
+        db.close();
+        switchToProject(id);
+      };
+    };
+    dbReq.onerror = () => {
+      switchToProject(id);
+    };
+  } else {
+    // Save brand name
+    const projectData = {
+      pages: [{ name: 'Stránka 1', boards: [], panX: 0, panY: 0, scale: 1 }],
+      currentPageIndex: 0,
+      currentSubPageIndex: -1,
+      brandName: name
+    };
+    localStorage.setItem('basewear_data_' + id, JSON.stringify(projectData));
+    switchToProject(id);
+  }
+});
+
+document.getElementById('new-project-cancel').addEventListener('click', () => {
+  newProjectOverlay.classList.remove('visible');
+});
+
+newProjectNameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') document.getElementById('new-project-create').click();
+  if (e.key === 'Escape') newProjectOverlay.classList.remove('visible');
+});
 
 document.getElementById('btn-close').addEventListener('click', () => {
   saveState();

@@ -129,6 +129,25 @@
   <!-- Close button — top-right -->
   <button id="btn-close" title="K projektům">✕</button>
 
+  <!-- Modal for new project -->
+  <div id="new-project-overlay">
+    <div id="new-project-modal">
+      <h3>NOVÝ PROJEKT</h3>
+      <label for="new-project-name">Název projektu</label>
+      <input type="text" id="new-project-name" placeholder="např.: Kolekce SS26">
+      <label for="new-project-logo" style="margin-top:12px">Logo</label>
+      <div class="brand-logo-row">
+        <button class="modal-btn" id="new-project-logo-btn">Nahrát</button>
+        <span id="new-project-logo-status" class="info" style="font-size:11px;color:var(--accent-mid)">žádné logo</span>
+      </div>
+      <input type="file" id="new-project-logo-file" accept="image/*" style="display:none">
+      <div class="modal-actions">
+        <button class="modal-btn" id="new-project-cancel">Zrušit</button>
+        <button class="modal-btn primary" id="new-project-create">Vytvořit</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Projects screen -->
   <div id="projects-screen">
     <div id="projects-container">
@@ -136,7 +155,6 @@
         <span class="projects-title">PROJEKTY</span>
       </div>
       <div id="projects-list"></div>
-      <input type="file" id="project-logo-input" accept="image/*" style="display:none">
     </div>
   </div>
 
