@@ -24,11 +24,15 @@ function createSyncIndicator() {
   setSyncStatus('offline');
 }
 
-function setSyncStatus(status) {
+let _syncDetail = '';
+
+function setSyncStatus(status, detail) {
   if (!_syncIndicator) return;
+  if (detail) _syncDetail = detail;
   const colors = { synced: '#4ade80', syncing: '#facc15', offline: '#888', error: '#ef4444' };
   const labels = { synced: 'Synced', syncing: 'Syncing...', offline: 'Local', error: 'Sync error' };
-  _syncIndicator.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${colors[status]}"></span>${labels[status]}`;
+  const detailHtml = _syncDetail ? `<span style="opacity:0.5;margin-left:4px;font-size:10px">${_syncDetail}</span>` : '';
+  _syncIndicator.innerHTML = `<span style="width:8px;height:8px;border-radius:50%;background:${colors[status]}"></span>${labels[status]}${detailHtml}`;
 }
 
 // ── Save structure to Firestore ──
@@ -359,16 +363,16 @@ function firebaseStartSync() {
   if (!firebaseReady || !db) return;
 
   createSyncIndicator();
-  setSyncStatus('syncing');
+  setSyncStatus('syncing', 'auth OK, loading...');
 
   // Check if user intentionally cleared all projects
   const projectsCleared = localStorage.getItem('basewear_projects_cleared');
   if (projectsCleared) {
-    // User deleted all projects — push empty list to remote and clear the flag
     localStorage.removeItem('basewear_projects_cleared');
   }
 
   // First: check if remote has a projects list and merge/adopt as needed
+  setSyncStatus('syncing', 'reading projects...');
   db.collection('meta').doc('projects').get().then((doc) => {
     if (doc.exists) {
       const data = doc.data();
@@ -385,8 +389,8 @@ function firebaseStartSync() {
           const isNewDevice = !anyLocalInRemote && projectsList.length === 0;
 
           if (isNewDevice && !currentProjectId) {
-            // Truly a new device with no real data — adopt remote projects
             console.log('[Firebase] New device detected, adopting remote projects...');
+            setSyncStatus('syncing', 'new device, adopting...');
             projectsList = remoteProjects;
             localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
             const targetProject = remoteProjects[0].id;
@@ -421,15 +425,14 @@ function firebaseStartSync() {
     }
 
     // Now do the initial structure load for current project
+    setSyncStatus('syncing', 'loading structure...');
     return _doInitialStructureLoad();
   }).then(() => {
-    // Mark sync as initialized — saves are now allowed
     _syncInitDone = true;
-
-    // Always sync projects list to remote (merges local-only projects)
+    setSyncStatus('syncing', 'uploading projects...');
     firebaseSaveProjectsList();
 
-    // Start real-time listeners
+    setSyncStatus('syncing', 'starting listeners...');
     _startStructureListener();
     _startProjectsListener();
   }).catch((err) => {
