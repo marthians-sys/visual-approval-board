@@ -375,7 +375,6 @@ function renderProjectsList() {
     delBtn.title = 'Smazat';
     delBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      if (projectsList.length <= 1) return;
       if (confirm('Smazat projekt «' + proj.name + '»?')) {
         deleteProject(proj.id);
         renderProjectsList();
@@ -383,7 +382,7 @@ function renderProjectsList() {
     });
 
     actions.appendChild(renameBtn);
-    if (projectsList.length > 1) actions.appendChild(delBtn);
+    actions.appendChild(delBtn);
 
     bottom.appendChild(name);
     bottom.appendChild(info);

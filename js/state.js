@@ -382,15 +382,19 @@ function createNewProject(name) {
 }
 
 function deleteProject(projectId) {
-  if (projectsList.length <= 1) return;
   projectsList = projectsList.filter(p => p.id !== projectId);
-  saveProjectsList();
   // Remove data
   localStorage.removeItem('basewear_data_' + projectId);
   // Delete IDB
   try { indexedDB.deleteDatabase('basewear_images_' + projectId); } catch(_) {}
   // Delete from Firebase
   if (typeof firebaseDeleteProject === 'function') firebaseDeleteProject(projectId);
+  // If no projects left, create a fresh one
+  if (projectsList.length === 0) {
+    const id = 'proj_' + Date.now();
+    projectsList.push({ id, name: 'Nový projekt', created: Date.now() });
+  }
+  saveProjectsList();
   // Switch to first remaining project if current was deleted
   if (currentProjectId === projectId) {
     switchToProject(projectsList[0].id);
