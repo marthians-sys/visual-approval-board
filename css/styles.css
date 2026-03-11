@@ -61,6 +61,56 @@ html, body {
   letter-spacing: 0.04em;
   color: var(--accent);
   line-height: 1;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+#hud .title:hover {
+  background: rgba(26, 26, 26, 0.06);
+}
+
+.hud-name-input {
+  font-family: var(--font-main);
+  font-weight: 600;
+  font-size: 16px;
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(26, 26, 26, 0.15);
+  border-radius: 6px;
+  padding: 3px 8px;
+  outline: none;
+  width: 180px;
+}
+
+#hud-logo-wrap {
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: background 0.15s;
+  padding: 2px;
+  min-width: 28px;
+  min-height: 28px;
+}
+
+#hud-logo-wrap:hover {
+  background: rgba(26, 26, 26, 0.06);
+}
+
+.hud-logo-placeholder {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px dashed rgba(26, 26, 26, 0.15);
+  border-radius: 4px;
+  font-size: 14px;
+  color: rgba(26, 26, 26, 0.25);
 }
 
 #hud .sep {

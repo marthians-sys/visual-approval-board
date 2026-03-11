@@ -68,14 +68,78 @@ boardTitleInput.addEventListener('keydown', e => {
 const hudBrandName = document.getElementById('hud-brand-name');
 const hudBrandLogo = document.getElementById('hud-brand-logo');
 const hudLogoSep = document.getElementById('hud-logo-sep');
+const hudNameInput = document.getElementById('hud-brand-name-input');
+const hudLogoWrap = document.getElementById('hud-logo-wrap');
+const hudLogoFile = document.getElementById('hud-logo-file');
+const hudLogoPlaceholder = document.getElementById('hud-logo-placeholder');
 
 // Init HUD from saved state
-hudBrandName.textContent = brandName;
+hudBrandName.textContent = brandName || 'Název';
 if (logoDataURL) {
   hudBrandLogo.src = logoDataURL;
   hudBrandLogo.style.display = '';
-  hudLogoSep.style.display = '';
+  hudLogoPlaceholder.style.display = 'none';
 }
+
+// Click on name → edit inline
+hudBrandName.addEventListener('click', () => {
+  hudBrandName.style.display = 'none';
+  hudNameInput.style.display = '';
+  hudNameInput.value = brandName || '';
+  hudNameInput.focus();
+  hudNameInput.select();
+});
+
+function finishNameEdit() {
+  const val = hudNameInput.value.trim();
+  hudNameInput.style.display = 'none';
+  hudBrandName.style.display = '';
+  if (val && val !== brandName) {
+    brandName = val;
+    hudBrandName.textContent = brandName;
+    // Also update project name in list
+    const proj = projectsList.find(p => p.id === currentProjectId);
+    if (proj) {
+      proj.name = val;
+      saveProjectsList();
+    }
+    saveState();
+  }
+}
+
+hudNameInput.addEventListener('blur', finishNameEdit);
+hudNameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter') hudNameInput.blur();
+  if (e.key === 'Escape') {
+    hudNameInput.value = brandName || '';
+    hudNameInput.blur();
+  }
+});
+
+// Click on logo area → upload new logo
+hudLogoWrap.addEventListener('click', () => {
+  hudLogoFile.value = '';
+  hudLogoFile.click();
+});
+
+hudLogoFile.addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    logoDataURL = ev.target.result;
+    logoImg = new Image();
+    logoImg.onload = () => {
+      draw();
+      hudBrandLogo.src = logoDataURL;
+      hudBrandLogo.style.display = '';
+      hudLogoPlaceholder.style.display = 'none';
+    };
+    logoImg.src = logoDataURL;
+    saveState();
+  };
+  reader.readAsDataURL(file);
+});
 
 // ── PNG upload (free image) ──
 

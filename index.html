@@ -30,9 +30,14 @@
   <button id="sidebar-toggle" class="open">‹</button>
 
   <div id="hud">
-    <img id="hud-brand-logo" class="hud-logo" style="display:none" alt="logo">
-    <span class="sep" id="hud-logo-sep" style="display:none"></span>
-    <span class="title" id="hud-brand-name"></span>
+    <div id="hud-logo-wrap" title="Změnit logo">
+      <img id="hud-brand-logo" class="hud-logo" style="display:none" alt="logo">
+      <span id="hud-logo-placeholder" class="hud-logo-placeholder">+</span>
+    </div>
+    <span class="sep" id="hud-logo-sep"></span>
+    <span class="title" id="hud-brand-name" title="Klikněte pro úpravu"></span>
+    <input type="text" id="hud-brand-name-input" class="hud-name-input" style="display:none">
+    <input type="file" id="hud-logo-file" accept="image/*" style="display:none">
   </div>
 
   <div id="ctx-menu">
