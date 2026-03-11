@@ -391,7 +391,7 @@ function renderProjectsList() {
 
     item.addEventListener('click', () => {
       if (proj.id === currentProjectId) {
-        projectsScreen.classList.remove('visible');
+        projectsScreen.classList.add('hidden');
       } else {
         switchToProject(proj.id);
       }
@@ -435,7 +435,7 @@ function renderProjectsList() {
 document.getElementById('btn-close').addEventListener('click', () => {
   saveState();
   renderProjectsList();
-  projectsScreen.classList.add('visible');
+  projectsScreen.classList.remove('hidden');
 });
 
 // ── Init ──
@@ -443,4 +443,4 @@ resize();
 
 // Show projects screen on startup
 renderProjectsList();
-projectsScreen.classList.add('visible');
+projectsScreen.classList.remove('hidden');
