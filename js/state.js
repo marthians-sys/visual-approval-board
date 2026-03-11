@@ -412,5 +412,12 @@ function renameProject(projectId, newName) {
   if (p) {
     p.name = newName;
     saveProjectsList();
+    // Also update brandName if this is the current project
+    if (projectId === currentProjectId) {
+      brandName = newName;
+      const hudName = document.getElementById('hud-brand-name');
+      if (hudName) hudName.textContent = brandName;
+      saveState();
+    }
   }
 }
