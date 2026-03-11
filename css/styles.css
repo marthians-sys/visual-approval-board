@@ -107,7 +107,7 @@ html, body {
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 400;
+  z-index: 600;
 }
 #new-project-overlay.visible { display: flex; }
 
