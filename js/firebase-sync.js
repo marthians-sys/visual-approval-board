@@ -3,6 +3,7 @@
 let _fbSaveTimeout = null;
 let _fbImageSaveTimeout = null;
 let _isRemoteUpdate = false;
+let _syncInitDone = false; // Guard: don't push to Firebase until initial sync check is done
 let _structureListener = null;
 let _projectsListener = null;
 let _syncIndicator = null;
@@ -32,7 +33,8 @@ function setSyncStatus(status) {
 
 // ── Save structure to Firestore ──
 function firebaseSaveStructure() {
-  if (!firebaseReady || !db || _isRemoteUpdate) return;
+  if (!firebaseReady || !db || _isRemoteUpdate || !_syncInitDone) return;
+  if (!currentProjectId) return;
 
   // Debounce
   if (_fbSaveTimeout) clearTimeout(_fbSaveTimeout);
@@ -46,7 +48,8 @@ function firebaseSaveStructure() {
       if (key === '_img' || key === '_imgObjects' || key === '_screenRect' ||
           key === '_pinRects' || key === '_commentRects' || key === '_imgSlots' ||
           key === '_btnApprove' || key === '_btnReject' || key === '_btnComment' ||
-          key === '_btnAddComment' || key === 'dataURL' || key === 'images' ||
+          key === '_btnAddComment' || key === '_btnAddLeft' || key === '_btnAddRight' ||
+          key === '_btnAddTop' || key === '_btnAddBottom' || key === 'dataURL' || key === 'images' ||
           key === 'logoDataURL') return undefined;
       return value;
     }));
@@ -71,7 +74,8 @@ function firebaseSaveStructure() {
 let _fbImageQueue = {};
 
 function firebaseSaveImages() {
-  if (!firebaseReady || !fbStorage || _isRemoteUpdate) return;
+  if (!firebaseReady || !fbStorage || _isRemoteUpdate || !_syncInitDone) return;
+  if (!currentProjectId) return;
 
   if (_fbImageSaveTimeout) clearTimeout(_fbImageSaveTimeout);
   _fbImageSaveTimeout = setTimeout(() => {
@@ -162,6 +166,8 @@ async function firebaseLoadImages() {
       if (!b.images) b.images = [null, null];
       if (!b._imgObjects) b._imgObjects = [null, null];
       for (let si = 0; si < 2; si++) {
+        // Skip if we already have this image locally
+        if (b.images[si] && b._imgObjects[si]) continue;
         const key = `board_${prefix}_${bi}_${si}`;
         const path = `projects/${currentProjectId}/${key}`;
         try {
@@ -188,6 +194,7 @@ async function firebaseLoadImages() {
     if (p.freeImages) {
       for (let fi_i = 0; fi_i < p.freeImages.length; fi_i++) {
         const fi = p.freeImages[fi_i];
+        if (fi.dataURL && fi._img) continue;
         const key = `free_${prefix}_${fi_i}`;
         const path = `projects/${currentProjectId}/${key}`;
         try {
@@ -224,7 +231,14 @@ async function firebaseLoadImages() {
     });
     logoDataURL = dataURL;
     logoImg = new Image();
-    logoImg.onload = () => { if (typeof draw === 'function') draw(); };
+    logoImg.onload = () => {
+      if (typeof draw === 'function') draw();
+      // Update HUD
+      const hudLogo = document.getElementById('hud-brand-logo');
+      const hudSep = document.getElementById('hud-logo-sep');
+      if (hudLogo) { hudLogo.src = logoDataURL; hudLogo.style.display = ''; }
+      if (hudSep) hudSep.style.display = '';
+    };
     logoImg.src = logoDataURL;
   } catch (e) {
     // No logo
@@ -240,11 +254,112 @@ async function firebaseLoadImages() {
   }
 }
 
+// ── Apply remote structure data to local state ──
+function _applyRemoteStructure(remote) {
+  if (!remote || !remote.pages) return;
+
+  _isRemoteUpdate = true;
+
+  // Preserve local image data and runtime fields
+  const localImageMap = {};
+  function saveLocalImages(p, prefix) {
+    if (!p.boards) return;
+    p.boards.forEach((b, bi) => {
+      if (b.images) {
+        b.images.forEach((dataURL, si) => {
+          if (dataURL) localImageMap[`${prefix}_${bi}_${si}`] = { dataURL, imgObj: b._imgObjects ? b._imgObjects[si] : null };
+        });
+      }
+    });
+    if (p.freeImages) {
+      p.freeImages.forEach((fi, fi_i) => {
+        if (fi.dataURL) localImageMap[`free_${prefix}_${fi_i}`] = { dataURL: fi.dataURL, img: fi._img };
+      });
+    }
+  }
+  pages.forEach((p, pi) => {
+    saveLocalImages(p, `${pi}`);
+    if (p.subPages) {
+      p.subPages.forEach((sp, spi) => {
+        saveLocalImages(sp, `${pi}_sub${spi}`);
+      });
+    }
+  });
+
+  pages = remote.pages;
+
+  // Restore local images to new pages structure
+  function restoreLocalImages(p, prefix) {
+    if (!p.boards) return;
+    p.boards.forEach((b, bi) => {
+      if (!b.images) b.images = [null, null];
+      if (!b._imgObjects) b._imgObjects = [null, null];
+      for (let si = 0; si < 2; si++) {
+        const key = `${prefix}_${bi}_${si}`;
+        if (localImageMap[key]) {
+          b.images[si] = localImageMap[key].dataURL;
+          b._imgObjects[si] = localImageMap[key].imgObj;
+        }
+      }
+    });
+    if (p.freeImages) {
+      p.freeImages.forEach((fi, fi_i) => {
+        const key = `free_${prefix}_${fi_i}`;
+        if (localImageMap[key]) {
+          fi.dataURL = localImageMap[key].dataURL;
+          fi._img = localImageMap[key].img;
+        }
+      });
+    }
+  }
+  pages.forEach((p, pi) => {
+    restoreLocalImages(p, `${pi}`);
+    if (p.subPages) {
+      p.subPages.forEach((sp, spi) => {
+        restoreLocalImages(sp, `${pi}_sub${spi}`);
+      });
+    }
+  });
+
+  if (remote.brandName !== undefined) {
+    brandName = remote.brandName;
+    const hudName = document.getElementById('hud-brand-name');
+    if (hudName) hudName.textContent = brandName;
+  }
+
+  syncFromPage();
+  restoreBoardImages();
+  restoreFreeImages();
+  if (typeof renderPageList === 'function') renderPageList();
+  if (typeof draw === 'function') draw();
+
+  // Save to localStorage for offline access
+  try {
+    const data = JSON.stringify({
+      pages, currentPageIndex, currentSubPageIndex, brandName
+    }, (key, value) => {
+      if (key === '_img' || key === '_imgObjects' || key === '_screenRect' ||
+          key === '_pinRects' || key === '_commentRects' || key === '_imgSlots' ||
+          key === '_btnApprove' || key === '_btnReject' || key === '_btnComment' ||
+          key === '_btnAddComment' || key === '_btnAddLeft' || key === '_btnAddRight' ||
+          key === '_btnAddTop' || key === '_btnAddBottom' || key === 'dataURL' || key === 'images' ||
+          key === 'logoDataURL') return undefined;
+      return value;
+    });
+    localStorage.setItem(STORE_KEY, data);
+  } catch (_) {}
+
+  setTimeout(() => {
+    _isRemoteUpdate = false;
+  }, 200);
+}
+
 // ── Real-time listener ──
 function firebaseStartSync() {
   if (!firebaseReady || !db) return;
 
   createSyncIndicator();
+  setSyncStatus('syncing');
 
   // First: check if remote has a projects list and adopt it if this is a new device
   db.collection('meta').doc('projects').get().then((doc) => {
@@ -260,35 +375,100 @@ function firebaseStartSync() {
           projectsList = remoteProjects;
           localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
           // Switch to first remote project
-          localStorage.setItem('basewear_current_project', remoteProjects[0].id);
+          const targetProject = remoteProjects[0].id;
+          localStorage.setItem('basewear_current_project', targetProject);
+          // Remove the auto-created local project data
+          if (currentProjectId) {
+            localStorage.removeItem('basewear_data_' + currentProjectId);
+            try { indexedDB.deleteDatabase('basewear_images_' + currentProjectId); } catch(_) {}
+          }
           location.reload();
           return;
+        } else {
+          // Local project exists in remote — merge any missing remote projects
+          let changed = false;
+          remoteProjects.forEach(rp => {
+            if (!projectsList.find(lp => lp.id === rp.id)) {
+              projectsList.push(rp);
+              changed = true;
+            }
+          });
+          if (changed) {
+            localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+          }
         }
       }
     } else {
-      // No remote projects — upload ours
-      firebaseSaveProjectsList();
+      // No remote projects — we'll upload ours after sync init is done
     }
 
-    // Continue with normal sync
+    // Now do the initial structure load for current project
+    return _doInitialStructureLoad();
+  }).then(() => {
+    // Mark sync as initialized — saves are now allowed
+    _syncInitDone = true;
+
+    // If no remote data existed for meta/projects, upload ours now
+    db.collection('meta').doc('projects').get().then((doc) => {
+      if (!doc.exists) {
+        firebaseSaveProjectsList();
+      }
+    });
+
+    // Start real-time listeners
     _startStructureListener();
     _startProjectsListener();
   }).catch((err) => {
-    console.warn('[Firebase] Projects check failed:', err);
+    console.warn('[Firebase] Sync init failed:', err);
+    setSyncStatus('error');
+    // Still allow local operation
+    _syncInitDone = true;
     _startStructureListener();
     _startProjectsListener();
   });
 }
 
+// Load structure from Firestore once (before starting listener)
+function _doInitialStructureLoad() {
+  if (!currentProjectId) return Promise.resolve();
+
+  return db.collection('projects').doc(currentProjectId).get().then((doc) => {
+    if (!doc.exists) {
+      // No remote data for this project — we are the source of truth
+      console.log('[Firebase] No remote data for project, will upload local data');
+      return;
+    }
+
+    const data = doc.data();
+    if (!data.structure) {
+      console.log('[Firebase] Remote doc exists but no structure field');
+      return;
+    }
+
+    const remote = data.structure;
+    console.log('[Firebase] Loaded remote structure for project:', currentProjectId);
+
+    // Apply remote data
+    _applyRemoteStructure(remote);
+
+    // Load images from Firebase Storage
+    return firebaseLoadImages();
+  });
+}
+
 function _startStructureListener() {
-  // Listen for structure changes
+  if (!currentProjectId) return;
+
+  // Listen for structure changes (real-time updates after initial load)
   _structureListener = db.collection('projects').doc(currentProjectId)
     .onSnapshot((doc) => {
       if (!doc.exists) {
-        // No remote data — do initial upload
-        console.log('[Firebase] No remote data, uploading local...');
-        firebaseSaveStructure();
-        firebaseSaveImages();
+        // No remote data — do initial upload (only if sync init is done)
+        if (_syncInitDone) {
+          console.log('[Firebase] No remote data, uploading local...');
+          firebaseSaveStructure();
+          firebaseSaveImages();
+        }
         return;
       }
 
@@ -304,88 +484,12 @@ function _startStructureListener() {
       }
 
       console.log('[Firebase] Remote update received');
-      _isRemoteUpdate = true;
-
-      // Apply remote structure
-      if (remote.pages) {
-        // Preserve local image data and runtime fields
-        const localImageMap = {};
-        function saveLocalImages(p, prefix) {
-          if (!p.boards) return;
-          p.boards.forEach((b, bi) => {
-            if (b.images) {
-              b.images.forEach((dataURL, si) => {
-                if (dataURL) localImageMap[`${prefix}_${bi}_${si}`] = { dataURL, imgObj: b._imgObjects ? b._imgObjects[si] : null };
-              });
-            }
-          });
-          if (p.freeImages) {
-            p.freeImages.forEach((fi, fi_i) => {
-              if (fi.dataURL) localImageMap[`free_${prefix}_${fi_i}`] = { dataURL: fi.dataURL, img: fi._img };
-            });
-          }
-        }
-        pages.forEach((p, pi) => {
-          saveLocalImages(p, `${pi}`);
-          if (p.subPages) {
-            p.subPages.forEach((sp, spi) => {
-              saveLocalImages(sp, `${pi}_sub${spi}`);
-            });
-          }
-        });
-
-        pages = remote.pages;
-
-        // Restore local images to new pages structure
-        function restoreLocalImages(p, prefix) {
-          if (!p.boards) return;
-          p.boards.forEach((b, bi) => {
-            if (!b.images) b.images = [null, null];
-            if (!b._imgObjects) b._imgObjects = [null, null];
-            for (let si = 0; si < 2; si++) {
-              const key = `${prefix}_${bi}_${si}`;
-              if (localImageMap[key]) {
-                b.images[si] = localImageMap[key].dataURL;
-                b._imgObjects[si] = localImageMap[key].imgObj;
-              }
-            }
-          });
-          if (p.freeImages) {
-            p.freeImages.forEach((fi, fi_i) => {
-              const key = `free_${prefix}_${fi_i}`;
-              if (localImageMap[key]) {
-                fi.dataURL = localImageMap[key].dataURL;
-                fi._img = localImageMap[key].img;
-              }
-            });
-          }
-        }
-        pages.forEach((p, pi) => {
-          restoreLocalImages(p, `${pi}`);
-          if (p.subPages) {
-            p.subPages.forEach((sp, spi) => {
-              restoreLocalImages(sp, `${pi}_sub${spi}`);
-            });
-          }
-        });
-
-        if (remote.brandName !== undefined) brandName = remote.brandName;
-      }
-
-      syncFromPage();
-      restoreBoardImages();
-      restoreFreeImages();
-      if (typeof renderPageList === 'function') renderPageList();
-      if (typeof draw === 'function') draw();
+      _applyRemoteStructure(remote);
 
       // Also load remote images if we don't have them locally
       firebaseLoadImages();
 
       setSyncStatus('synced');
-
-      setTimeout(() => {
-        _isRemoteUpdate = false;
-      }, 100);
     }, (err) => {
       console.warn('[Firebase] Listener error:', err);
       setSyncStatus('error');
@@ -397,7 +501,9 @@ function _startProjectsListener() {
   _projectsListener = db.collection('meta').doc('projects')
     .onSnapshot((doc) => {
       if (!doc.exists) {
-        firebaseSaveProjectsList();
+        if (_syncInitDone) {
+          firebaseSaveProjectsList();
+        }
         return;
       }
       const data = doc.data();
@@ -406,7 +512,7 @@ function _startProjectsListener() {
         projectsList = data.list;
         localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
         if (typeof renderProjectsList === 'function') renderProjectsList();
-        setTimeout(() => { _isRemoteUpdate = false; }, 100);
+        setTimeout(() => { _isRemoteUpdate = false; }, 200);
       }
     });
 

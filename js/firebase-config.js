@@ -36,6 +36,11 @@ if (firebaseConfigured && typeof firebase !== 'undefined') {
     })
     .catch((err) => {
       console.warn('[Firebase] Auth failed:', err);
+      // Show visible error so user knows sync won't work
+      const errDiv = document.createElement('div');
+      errDiv.style.cssText = 'position:fixed;bottom:12px;right:12px;z-index:9999;padding:8px 14px;border-radius:8px;background:#ef4444;color:#fff;font:400 12px "DM Mono",monospace;';
+      errDiv.textContent = 'Firebase auth failed — check console';
+      document.body.appendChild(errDiv);
     });
 } else {
   if (!firebaseConfigured) {
