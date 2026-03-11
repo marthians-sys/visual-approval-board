@@ -440,3 +440,7 @@ document.getElementById('btn-close').addEventListener('click', () => {
 
 // ── Init ──
 resize();
+
+// Show projects screen on startup
+renderProjectsList();
+projectsScreen.classList.add('visible');
