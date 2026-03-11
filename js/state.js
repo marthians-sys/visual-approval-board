@@ -399,9 +399,10 @@ function deleteProject(projectId) {
     projectsList.push({ id, name: 'Nový projekt', created: Date.now() });
   }
   saveProjectsList();
-  // Switch to first remaining project if current was deleted
+  // If current project was deleted, update to first remaining (no reload)
   if (currentProjectId === projectId) {
-    switchToProject(projectsList[0].id);
+    currentProjectId = projectsList[0].id;
+    localStorage.setItem('basewear_current_project', currentProjectId);
   }
 }
 
