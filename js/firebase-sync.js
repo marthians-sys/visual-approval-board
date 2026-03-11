@@ -246,6 +246,41 @@ function firebaseStartSync() {
 
   createSyncIndicator();
 
+  // First: check if remote has a projects list and adopt it if this is a new device
+  db.collection('meta').doc('projects').get().then((doc) => {
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.list && data.list.length > 0) {
+        const remoteProjects = data.list;
+        // Check if current local project exists in remote list
+        const localExistsInRemote = remoteProjects.find(p => p.id === currentProjectId);
+        if (!localExistsInRemote) {
+          // This is a new device — adopt remote projects
+          console.log('[Firebase] New device detected, adopting remote projects...');
+          projectsList = remoteProjects;
+          localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+          // Switch to first remote project
+          localStorage.setItem('basewear_current_project', remoteProjects[0].id);
+          location.reload();
+          return;
+        }
+      }
+    } else {
+      // No remote projects — upload ours
+      firebaseSaveProjectsList();
+    }
+
+    // Continue with normal sync
+    _startStructureListener();
+    _startProjectsListener();
+  }).catch((err) => {
+    console.warn('[Firebase] Projects check failed:', err);
+    _startStructureListener();
+    _startProjectsListener();
+  });
+}
+
+function _startStructureListener() {
   // Listen for structure changes
   _structureListener = db.collection('projects').doc(currentProjectId)
     .onSnapshot((doc) => {
@@ -355,19 +390,23 @@ function firebaseStartSync() {
       console.warn('[Firebase] Listener error:', err);
       setSyncStatus('error');
     });
+}
 
+function _startProjectsListener() {
   // Listen for projects list changes
   _projectsListener = db.collection('meta').doc('projects')
     .onSnapshot((doc) => {
       if (!doc.exists) {
-        // Upload local projects list
         firebaseSaveProjectsList();
         return;
       }
       const data = doc.data();
       if (data.list && data._updatedBy !== (firebaseUser ? firebaseUser.uid : '')) {
+        _isRemoteUpdate = true;
         projectsList = data.list;
-        saveProjectsList();
+        localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
+        if (typeof renderProjectsList === 'function') renderProjectsList();
+        setTimeout(() => { _isRemoteUpdate = false; }, 100);
       }
     });
 
