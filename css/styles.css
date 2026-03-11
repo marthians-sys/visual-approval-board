@@ -6,8 +6,8 @@
   --accent-dim: rgba(42, 42, 42, 0.1);
   --accent-mid: rgba(42, 42, 42, 0.4);
   --dot: rgba(42, 42, 42, 0.15);
-  --font-mono: 'DM Mono', monospace;
-  --font-display: 'Bebas Neue', sans-serif;
+  --font-main: 'Outfit', sans-serif;
+  --font-display: 'Outfit', sans-serif;
 }
 
 html, body {
@@ -15,7 +15,7 @@ html, body {
   overflow: hidden;
   background: var(--bg);
   color: var(--accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   user-select: none;
   -webkit-user-select: none;
 }
@@ -89,7 +89,7 @@ html, body {
   cursor: pointer;
   font-size: 14px;
   color: var(--accent-mid);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   transition: background 0.15s, color 0.15s;
   line-height: 1;
 }
@@ -117,7 +117,7 @@ html, body {
   padding: 28px 32px;
   min-width: 320px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 #new-project-modal h3 {
@@ -125,7 +125,7 @@ html, body {
   font-size: 22px;
   letter-spacing: 0.06em;
   margin-bottom: 16px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -142,7 +142,7 @@ html, body {
   padding: 8px 12px;
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 13px;
   color: var(--accent);
   background: #fafafa;
@@ -167,7 +167,7 @@ html, body {
   padding: 28px 32px;
   min-width: 320px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 #brand-modal h3 {
@@ -175,7 +175,7 @@ html, body {
   font-size: 22px;
   letter-spacing: 0.06em;
   margin-bottom: 16px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -192,7 +192,7 @@ html, body {
   padding: 8px 12px;
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 13px;
   color: var(--accent);
   background: #fafafa;
@@ -216,7 +216,7 @@ html, body {
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
   background: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -267,7 +267,7 @@ html, body {
   border: 1px solid var(--accent-dim);
   border-radius: 10px;
   color: var(--accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 16px;
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s;
@@ -319,7 +319,7 @@ html, body {
   border: none;
   border-radius: 7px;
   color: var(--accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 12px;
   font-weight: 400;
   cursor: pointer;
@@ -358,7 +358,7 @@ html, body {
   padding: 28px 32px;
   min-width: 320px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 #modal h3 {
@@ -366,7 +366,7 @@ html, body {
   font-size: 22px;
   letter-spacing: 0.06em;
   margin-bottom: 16px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -383,7 +383,7 @@ html, body {
   padding: 8px 12px;
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 13px;
   color: var(--accent);
   background: #fafafa;
@@ -407,7 +407,7 @@ html, body {
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
   background: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -446,7 +446,7 @@ html, body {
   min-width: 320px;
   max-width: 400px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 #approve-modal h3 {
@@ -454,7 +454,7 @@ html, body {
   font-size: 22px;
   letter-spacing: 0.06em;
   margin-bottom: 16px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -471,7 +471,7 @@ html, body {
   padding: 8px 12px;
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 13px;
   color: var(--accent);
   background: #fafafa;
@@ -495,7 +495,7 @@ html, body {
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
   background: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -531,7 +531,7 @@ html, body {
   border: 1px solid rgba(34, 197, 94, 0.25);
   border-radius: 20px;
   background: rgba(34, 197, 94, 0.06);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 12px;
   font-weight: 500;
   color: var(--accent);
@@ -570,7 +570,7 @@ html, body {
   min-width: 360px;
   max-width: 440px;
   box-shadow: 0 16px 48px rgba(0,0,0,0.12);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 #comment-modal h3 {
@@ -578,7 +578,7 @@ html, body {
   font-size: 22px;
   letter-spacing: 0.06em;
   margin-bottom: 16px;
-  font-weight: 400;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -596,7 +596,7 @@ html, body {
   padding: 8px 12px;
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 13px;
   color: var(--accent);
   background: #fafafa;
@@ -622,7 +622,7 @@ html, body {
   border: 1px solid var(--accent-dim);
   border-radius: 8px;
   background: none;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 11px;
   font-weight: 500;
   text-transform: uppercase;
@@ -682,7 +682,7 @@ html, body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   font-size: 12px;
   color: var(--accent-mid);
   transition: left 0.2s ease;
@@ -703,6 +703,7 @@ html, body {
 #sidebar-header .sb-title {
   font-family: var(--font-display);
   font-size: 16px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent);
 }
@@ -719,7 +720,7 @@ html, body {
   cursor: pointer;
   font-size: 16px;
   color: var(--accent);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   transition: background 0.15s;
 }
 
@@ -782,7 +783,7 @@ html, body {
   justify-content: center;
   font-size: 9px;
   color: var(--accent-mid);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
 }
 
 .page-item .page-name {
@@ -799,7 +800,7 @@ html, body {
   flex: 1;
   font-size: 12px;
   font-weight: 400;
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   color: var(--accent);
   background: #fff;
   border: 1px solid var(--accent-mid);
@@ -839,7 +840,7 @@ html, body {
   cursor: pointer;
   font-size: 11px;
   color: var(--accent-mid);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   transition: background 0.1s, color 0.1s;
 }
 
@@ -880,7 +881,7 @@ html, body {
   cursor: pointer;
   font-size: 14px;
   color: var(--accent-mid);
-  font-family: var(--font-mono);
+  font-family: var(--font-main);
   z-index: 100;
   transition: background 0.15s, color 0.15s;
   line-height: 1;
@@ -925,6 +926,7 @@ html, body {
 #projects-header .projects-title {
   font-family: var(--font-display);
   font-size: 32px;
+  font-weight: 700;
   letter-spacing: 0.06em;
   color: var(--accent);
 }

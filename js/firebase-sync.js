@@ -17,7 +17,7 @@ function createSyncIndicator() {
     display: flex; align-items: center; gap: 6px;
     padding: 6px 12px; border-radius: 20px;
     background: rgba(30,30,30,0.85); color: #aaa;
-    font: 400 11px 'DM Mono', monospace;
+    font: 400 11px 'Outfit', sans-serif;
     transition: opacity 0.3s;
   `;
   document.body.appendChild(_syncIndicator);

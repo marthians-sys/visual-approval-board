@@ -66,7 +66,7 @@ function drawBoards(w, h) {
 
     // Label (bottom-left, subtle)
     const labelSize = Math.max(7, 9 * scale);
-    ctx.font = `300 ${labelSize}px 'DM Mono', monospace`;
+    ctx.font = `300 ${labelSize}px 'Outfit', sans-serif`;
     ctx.fillStyle = 'rgba(42, 42, 42, 0.2)';
     ctx.textAlign = 'left';
     ctx.textBaseline = 'bottom';
@@ -83,14 +83,14 @@ function drawBoards(w, h) {
       ctx.fillStyle = 'rgba(34, 197, 94, 0.5)';
 
       if (b.approvedBy) {
-        ctx.font = `700 ${stampSize}px 'DM Mono', monospace`;
+        ctx.font = `700 ${stampSize}px 'Outfit', sans-serif`;
         const nameW = ctx.measureText(b.approvedBy).width;
         ctx.fillText(b.approvedBy, stampX, sy + sh - 6 * scale);
 
-        ctx.font = `400 ${stampSize}px 'DM Mono', monospace`;
+        ctx.font = `400 ${stampSize}px 'Outfit', sans-serif`;
         ctx.fillText(' · ' + b.approvedAt, stampX + nameW, sy + sh - 6 * scale);
       } else {
-        ctx.font = `400 ${stampSize}px 'DM Mono', monospace`;
+        ctx.font = `400 ${stampSize}px 'Outfit', sans-serif`;
         ctx.fillText(b.approvedAt, stampX, sy + sh - 6 * scale);
       }
     }
@@ -208,7 +208,7 @@ function drawBoards(w, h) {
     // Board title — top-right corner
     if (b.title) {
       const titleSize = Math.max(10, 14 * scale);
-      ctx.font = `400 ${titleSize}px 'Bebas Neue', sans-serif`;
+      ctx.font = `400 ${titleSize}px 'Outfit', sans-serif`;
       ctx.fillStyle = 'rgba(42, 42, 42, 0.7)';
       ctx.textAlign = 'right';
       ctx.textBaseline = 'top';
@@ -422,8 +422,8 @@ function drawBoards(w, h) {
         const isConfirming = confirmDeleteComment && confirmDeleteComment.boardIndex === i && confirmDeleteComment.commentIndex === ci;
 
         // Word-wrap text to compute height
-        const cmtTitleFont = `500 ${cmtFontSize}px 'DM Mono', monospace`;
-        const cmtBodyFont = `300 ${cmtFontSize}px 'DM Mono', monospace`;
+        const cmtTitleFont = `500 ${cmtFontSize}px 'Outfit', sans-serif`;
+        const cmtBodyFont = `300 ${cmtFontSize}px 'Outfit', sans-serif`;
         const maxTextW = cmtBlockW - cmtPadX * 2 - (isHovered || isConfirming ? iconSize * 2 + iconPad + 8 * scale : 0);
 
         // Wrap title lines
@@ -499,7 +499,7 @@ function drawBoards(w, h) {
 
           ctx.textAlign = 'left';
           ctx.textBaseline = 'middle';
-          ctx.font = `400 ${cmtFontSize}px 'DM Mono', monospace`;
+          ctx.font = `400 ${cmtFontSize}px 'Outfit', sans-serif`;
           ctx.fillStyle = '#ef4444';
           ctx.fillText('Smazat?', cmtBlockX + cmtPadX, iconCenterY);
         } else {
@@ -795,7 +795,7 @@ function drawSubPageColumns(w, h) {
     const labelY = (rowY - 12 + panY) * scale;
     if (labelY > -30 && labelY < h && labelX > -200 && labelX < w + 200) {
       const labelSize = Math.max(9, 12 * scale);
-      ctx.font = `500 ${labelSize}px 'DM Mono', monospace`;
+      ctx.font = `500 ${labelSize}px 'Outfit', sans-serif`;
       ctx.fillStyle = 'rgba(42, 42, 42, 0.3)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'bottom';
@@ -839,7 +839,7 @@ function drawSubPageColumns(w, h) {
 
       // Label
       const labelSize2 = Math.max(7, 9 * scale);
-      ctx.font = `300 ${labelSize2}px 'DM Mono', monospace`;
+      ctx.font = `300 ${labelSize2}px 'Outfit', sans-serif`;
       ctx.fillStyle = 'rgba(42, 42, 42, 0.2)';
       ctx.textAlign = 'left';
       ctx.textBaseline = 'bottom';
@@ -855,13 +855,13 @@ function drawSubPageColumns(w, h) {
         ctx.textAlign = 'left';
         ctx.fillStyle = 'rgba(34, 197, 94, 0.5)';
         if (b.approvedBy) {
-          ctx.font = `700 ${stampSize}px 'DM Mono', monospace`;
+          ctx.font = `700 ${stampSize}px 'Outfit', sans-serif`;
           const nameW = ctx.measureText(b.approvedBy).width;
           ctx.fillText(b.approvedBy, stampX, sy + sh - 6 * scale);
-          ctx.font = `400 ${stampSize}px 'DM Mono', monospace`;
+          ctx.font = `400 ${stampSize}px 'Outfit', sans-serif`;
           ctx.fillText(' · ' + b.approvedAt, stampX + nameW, sy + sh - 6 * scale);
         } else {
-          ctx.font = `400 ${stampSize}px 'DM Mono', monospace`;
+          ctx.font = `400 ${stampSize}px 'Outfit', sans-serif`;
           ctx.fillText(b.approvedAt, stampX, sy + sh - 6 * scale);
         }
       }
@@ -916,7 +916,7 @@ function drawSubPageColumns(w, h) {
       // Title
       if (b.title) {
         const titleSize = Math.max(10, 14 * scale);
-        ctx.font = `400 ${titleSize}px 'Bebas Neue', sans-serif`;
+        ctx.font = `400 ${titleSize}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(42, 42, 42, 0.7)';
         ctx.textAlign = 'right';
         ctx.textBaseline = 'top';
@@ -966,7 +966,7 @@ function drawSubPageColumns(w, h) {
         ctx.fill();
         // Number
         const badgeFontSize = Math.max(8, 11 * scale);
-        ctx.font = `500 ${badgeFontSize}px 'DM Mono', monospace`;
+        ctx.font = `500 ${badgeFontSize}px 'Outfit', sans-serif`;
         ctx.fillStyle = 'rgba(42, 42, 42, 0.5)';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
