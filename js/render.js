@@ -614,7 +614,7 @@ function drawBoards(w, h) {
     });
 
     function drawSidePlusBtn(cx, cy) {
-      ctx.globalAlpha = 0.2;
+      ctx.globalAlpha = 0.4;
       ctx.fillStyle = 'rgba(42, 42, 42, 0.05)';
       ctx.beginPath();
       ctx.arc(cx, cy, sideBtnSize / 2, 0, Math.PI * 2);
