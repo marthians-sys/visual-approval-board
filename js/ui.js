@@ -63,16 +63,11 @@ boardTitleInput.addEventListener('keydown', e => {
   if (e.key === 'Escape') modalOverlay.classList.remove('visible');
 });
 
-// ── Brand settings modal ──
+// ── HUD init ──
 
-const brandOverlay = document.getElementById('brand-overlay');
-const brandNameInput = document.getElementById('brand-name-input');
-const brandLogoFile = document.getElementById('brand-logo-file');
-const brandLogoStatus = document.getElementById('brand-logo-status');
 const hudBrandName = document.getElementById('hud-brand-name');
 const hudBrandLogo = document.getElementById('hud-brand-logo');
 const hudLogoSep = document.getElementById('hud-logo-sep');
-let pendingBrandLogo = null;
 
 // Init HUD from saved state
 hudBrandName.textContent = brandName;
@@ -81,61 +76,6 @@ if (logoDataURL) {
   hudBrandLogo.style.display = '';
   hudLogoSep.style.display = '';
 }
-
-document.getElementById('hud-add').addEventListener('click', () => {
-  brandNameInput.value = brandName;
-  pendingBrandLogo = null;
-  brandLogoStatus.textContent = logoDataURL ? 'logo nahráno' : 'žádné logo';
-  brandOverlay.classList.add('visible');
-  setTimeout(() => brandNameInput.focus(), 50);
-});
-
-document.getElementById('brand-logo-upload').addEventListener('click', () => {
-  brandLogoFile.click();
-});
-
-brandLogoFile.addEventListener('change', e => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = ev => {
-    pendingBrandLogo = ev.target.result;
-    brandLogoStatus.textContent = file.name;
-  };
-  reader.readAsDataURL(file);
-  brandLogoFile.value = '';
-});
-
-document.getElementById('brand-save').addEventListener('click', () => {
-  const name = brandNameInput.value.trim();
-  if (name) {
-    brandName = name;
-    hudBrandName.textContent = brandName;
-  }
-  if (pendingBrandLogo) {
-    logoDataURL = pendingBrandLogo;
-    logoImg = new Image();
-    logoImg.onload = () => {
-      draw();
-      hudBrandLogo.src = logoDataURL;
-      hudBrandLogo.style.display = '';
-      hudLogoSep.style.display = '';
-    };
-    logoImg.src = logoDataURL;
-  }
-  brandOverlay.classList.remove('visible');
-  saveState();
-});
-
-document.getElementById('brand-cancel').addEventListener('click', () => {
-  brandOverlay.classList.remove('visible');
-});
-
-brandNameInput.addEventListener('keydown', e => {
-  if (e.key === 'Enter') document.getElementById('brand-save').click();
-  if (e.key === 'Escape') brandOverlay.classList.remove('visible');
-});
-
 
 // ── PNG upload (free image) ──
 

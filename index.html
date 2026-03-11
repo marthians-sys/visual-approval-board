@@ -33,8 +33,6 @@
     <img id="hud-brand-logo" class="hud-logo" style="display:none" alt="logo">
     <span class="sep" id="hud-logo-sep" style="display:none"></span>
     <span class="title" id="hud-brand-name"></span>
-    <span class="sep"></span>
-    <button class="hud-add-btn" id="hud-add" title="Nastavit název a logo">+</button>
   </div>
 
   <div id="ctx-menu">
@@ -60,28 +58,6 @@
     <button class="ctx-item" id="fimg-lock">Uzamknout</button>
     <div class="ctx-sep"></div>
     <button class="ctx-item danger" id="fimg-delete">Smazat</button>
-  </div>
-
-  <!-- Hidden file input for logo -->
-  <input type="file" id="logo-input" accept="image/*" style="display:none">
-
-  <!-- Modal for brand settings -->
-  <div id="brand-overlay">
-    <div id="brand-modal">
-      <h3>NASTAVENÍ</h3>
-      <label for="brand-name-input">Název značky</label>
-      <input type="text" id="brand-name-input" placeholder="např.: Název značky">
-      <label for="brand-logo-input" style="margin-top:12px">Logo</label>
-      <div class="brand-logo-row">
-        <button class="modal-btn" id="brand-logo-upload">Nahrát</button>
-        <span id="brand-logo-status" class="info" style="font-size:11px;color:var(--accent-mid)">žádné logo</span>
-      </div>
-      <input type="file" id="brand-logo-file" accept="image/*" style="display:none">
-      <div class="modal-actions">
-        <button class="modal-btn" id="brand-cancel">Zrušit</button>
-        <button class="modal-btn primary" id="brand-save">Uložit</button>
-      </div>
-    </div>
   </div>
 
   <!-- Modal for new board -->
