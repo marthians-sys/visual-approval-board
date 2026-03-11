@@ -11,27 +11,20 @@ let currentProjectId = localStorage.getItem('basewear_current_project') || null;
 // Projects list
 let projectsList = JSON.parse(localStorage.getItem(PROJECTS_KEY) || '[]');
 
-// Auto-create first project if none exist
+// If no projects exist, don't auto-create — show projects screen
 if (projectsList.length === 0) {
-  const id = 'proj_' + Date.now();
-  projectsList.push({ id, name: 'BASEWEAR', created: Date.now() });
-  currentProjectId = id;
-  localStorage.setItem(PROJECTS_KEY, JSON.stringify(projectsList));
-  localStorage.setItem('basewear_current_project', currentProjectId);
-  // Migrate existing data to this project
-  const existingData = localStorage.getItem('basewear_canvas');
-  if (existingData) {
-    localStorage.setItem('basewear_data_' + id, existingData);
-  }
+  currentProjectId = null;
+  localStorage.removeItem('basewear_current_project');
+  localStorage.removeItem('basewear_in_project');
 }
 
-if (!currentProjectId) {
+if (!currentProjectId && projectsList.length > 0) {
   currentProjectId = projectsList[0].id;
   localStorage.setItem('basewear_current_project', currentProjectId);
 }
 
-const STORE_KEY = 'basewear_data_' + currentProjectId;
-const IDB_NAME = 'basewear_images_' + currentProjectId;
+const STORE_KEY = currentProjectId ? 'basewear_data_' + currentProjectId : null;
+const IDB_NAME = currentProjectId ? 'basewear_images_' + currentProjectId : null;
 const IDB_STORE = 'images';
 const saved = JSON.parse(localStorage.getItem(STORE_KEY) || 'null');
 
@@ -113,6 +106,7 @@ if (logoDataURL) {
 let idb = null;
 
 function openIDB() {
+  if (!IDB_NAME) return Promise.resolve(null);
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(IDB_NAME, 1);
     req.onupgradeneeded = () => {
@@ -312,6 +306,7 @@ let hoveredImgSlot = null; // { boardIndex, slotIndex }
 let _saveTimeout = null;
 
 function saveState() {
+  if (!currentProjectId) return;
   syncToPage();
 
   // Save structure (without image data) to localStorage
@@ -328,7 +323,7 @@ function saveState() {
     return value;
   });
   try {
-    localStorage.setItem(STORE_KEY, data);
+    localStorage.setItem('basewear_data_' + currentProjectId, data);
   } catch (_) {}
 
   // Debounced save of images to IndexedDB
@@ -387,13 +382,15 @@ function deleteProject(projectId) {
   saveProjectsList();
   // If current project was deleted
   if (currentProjectId === projectId) {
+    localStorage.removeItem('basewear_in_project');
     if (projectsList.length > 0) {
       currentProjectId = projectsList[0].id;
+      localStorage.setItem('basewear_current_project', currentProjectId);
     } else {
       currentProjectId = null;
+      localStorage.removeItem('basewear_current_project');
+      location.reload();
     }
-    localStorage.setItem('basewear_current_project', currentProjectId || '');
-    localStorage.removeItem('basewear_in_project');
   }
 }
 

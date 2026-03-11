@@ -443,8 +443,8 @@ document.getElementById('btn-close').addEventListener('click', () => {
 // ── Init ──
 resize();
 
-// Show projects screen on startup only if user wasn't inside a project
+// Show projects screen on startup if user wasn't inside a project or no projects exist
 renderProjectsList();
-if (!localStorage.getItem('basewear_in_project')) {
+if (!localStorage.getItem('basewear_in_project') || projectsList.length === 0) {
   projectsScreen.classList.add('visible');
 }
