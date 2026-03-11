@@ -451,8 +451,10 @@ function _doInitialStructureLoad() {
     // Apply remote data
     _applyRemoteStructure(remote);
 
-    // Load images from Firebase Storage
-    return firebaseLoadImages();
+    // Load images from Firebase Storage (non-blocking — don't wait for it)
+    firebaseLoadImages().catch(err => {
+      console.warn('[Firebase] Image load failed:', err);
+    });
   });
 }
 
