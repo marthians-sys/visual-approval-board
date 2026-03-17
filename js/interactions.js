@@ -485,6 +485,10 @@ function handleBoardButtonClick(screenX, screenY) {
       draw();
       return true;
     }
+    if (b._btnClientComments && hitCircle(screenX, screenY, b._btnClientComments)) {
+      toggleAdminCCPanel();
+      return true;
+    }
     if (hitCircle(screenX, screenY, b._btnComment) || hitCircle(screenX, screenY, b._btnAddComment)) {
       openCommentModal('', '', (title, text) => {
         if (!b.comments) b.comments = [];

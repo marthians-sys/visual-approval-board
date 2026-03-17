@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/styles.css?v=4">
+  <link rel="stylesheet" href="css/styles.css?v=37">
 </head>
 <body>
 
@@ -129,6 +129,21 @@
     </div>
   </div>
 
+  <!-- Modal for client users management -->
+  <div id="client-users-overlay">
+    <div id="client-users-modal">
+      <h3>UŽIVATELÉ PRO KLIENTA</h3>
+      <div id="client-users-list"></div>
+      <div class="client-users-add-row">
+        <input type="text" id="client-user-name-input" placeholder="Jméno uživatele">
+        <button class="modal-btn primary" id="client-user-add-btn">Přidat</button>
+      </div>
+      <div class="modal-actions">
+        <button class="modal-btn" id="client-users-close">Zavřít</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Projects screen -->
   <div id="projects-screen">
     <div id="projects-container">
@@ -137,6 +152,51 @@
       </div>
       <div id="projects-list"></div>
     </div>
+  </div>
+
+  <!-- Client page -->
+  <div id="client-screen">
+    <!-- Client sidebar (read-only) -->
+    <div id="client-sidebar">
+      <div id="client-sidebar-header">
+        <span class="sb-title">STRÁNKY</span>
+      </div>
+      <div id="client-page-list"></div>
+    </div>
+    <button id="client-sidebar-toggle" class="open">‹</button>
+    <div id="client-topbar">
+      <button id="client-back" title="Zpět">← Zpět</button>
+      <div id="client-brand">
+        <img id="client-brand-logo" style="display:none" alt="logo">
+        <span id="client-brand-sep" class="sep" style="display:none"></span>
+        <span id="client-brand-name"></span>
+      </div>
+      <button id="client-filter-approved" title="Pouze schválené">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <circle cx="9" cy="9" r="7.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M5.5 9.5L7.5 11.5L12.5 6.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button id="client-grid-toggle" title="Seznam pláten">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <rect x="1" y="1" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="10" y="1" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="1" y="10" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+          <rect x="10" y="10" width="7" height="7" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+      </button>
+    </div>
+    <div id="client-container">
+    </div>
+  </div>
+
+  <!-- Admin client comments panel -->
+  <div id="admin-cc-panel">
+    <div id="admin-cc-header">
+      <span class="admin-cc-title">KOMENTÁŘE KLIENTŮ</span>
+      <button id="admin-cc-close">✕</button>
+    </div>
+    <div id="admin-cc-list"></div>
   </div>
 
   <div id="controls-bottom">

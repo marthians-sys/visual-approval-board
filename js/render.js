@@ -359,6 +359,159 @@ function drawBoards(w, h) {
     ctx.lineTo(rejCx - xk, rejCy + xk);
     ctx.stroke();
 
+    // Client comments button (person icon)
+    const ccBtnX = sx + (btnW + btnGap) * 2;
+    b._btnClientComments = { x: ccBtnX, y: btnY, w: btnW, h: btnH };
+
+    // Check if this board has client comments
+    const ccPrefix = currentSubPageIndex >= 0 ? `${currentPageIndex}_sub${currentSubPageIndex}` : `${currentPageIndex}`;
+    const ccKey = `${currentProjectId}_${ccPrefix}_${i}`;
+    const ccData = JSON.parse(localStorage.getItem('basewear_client_comments') || '{}');
+    const ccList = ccData[ccKey] || [];
+    const ccHasComments = ccList.length > 0;
+    const ccActive = b._showClientComments;
+
+    ctx.fillStyle = ccActive ? 'rgba(99, 102, 241, 0.9)' : (ccHasComments ? 'rgba(99, 102, 241, 0.2)' : 'rgba(99, 102, 241, 0.08)');
+    ctx.beginPath();
+    ctx.arc(ccBtnX + btnW / 2, btnY + btnH / 2, btnW / 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Person icon
+    const pCx = ccBtnX + btnW / 2;
+    const pCy = btnY + btnH / 2;
+    const ps = btnH * 0.15;
+    ctx.strokeStyle = ccActive ? '#fff' : 'rgba(99, 102, 241, 0.8)';
+    ctx.fillStyle = ccActive ? '#fff' : 'rgba(99, 102, 241, 0.8)';
+    ctx.lineWidth = Math.max(1.2, 1.8 * scale);
+    // Head
+    ctx.beginPath();
+    ctx.arc(pCx, pCy - ps * 0.6, ps * 0.55, 0, Math.PI * 2);
+    ctx.fill();
+    // Body
+    ctx.beginPath();
+    ctx.arc(pCx, pCy + ps * 1.2, ps * 0.9, Math.PI, 0);
+    ctx.fill();
+
+    // Count badge
+    if (ccHasComments) {
+      const badgeR = Math.max(7, 9 * scale);
+      const badgeX = ccBtnX + btnW - badgeR * 0.3;
+      const badgeY = btnY + badgeR * 0.3;
+      ctx.fillStyle = 'rgb(99, 102, 241)';
+      ctx.beginPath();
+      ctx.arc(badgeX, badgeY, badgeR, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#fff';
+      ctx.font = `600 ${Math.max(7, 9 * scale)}px 'Outfit', sans-serif`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(ccList.length, badgeX, badgeY);
+    }
+
+    // Draw client comments block if toggled (now handled by admin panel)
+    if (false && ccActive && ccList.length > 0) {
+      const ccBlockX = ccBtnX;
+      const ccFontSize = Math.max(8, 10 * scale);
+      const ccPadX = 12 * scale;
+      const ccPadY = 8 * scale;
+      const ccLineH = ccFontSize * 1.45;
+      const ccGap = 4 * scale;
+      const ccRadius = 10 * scale;
+      const ccBlockW = 280 * scale;
+      let ccCurY = btnY + btnH + 8 * scale;
+
+      ccList.forEach(c => {
+        const ccBodyFont = `400 ${ccFontSize}px 'Outfit', sans-serif`;
+        const ccDateFont = `300 ${Math.max(7, 8 * scale)}px 'Outfit', sans-serif`;
+        ctx.font = ccBodyFont;
+        const maxTextW = ccBlockW - ccPadX * 2;
+
+        // Word wrap
+        const words = (c.text || '').split(' ');
+        const lines = [];
+        let line = '';
+        for (const word of words) {
+          const test = line ? line + ' ' + word : word;
+          if (ctx.measureText(test).width > maxTextW && line) {
+            lines.push(line);
+            line = word;
+          } else {
+            line = test;
+          }
+        }
+        if (line) lines.push(line);
+
+        const authorFont = `600 ${Math.max(7, 9 * scale)}px 'Outfit', sans-serif`;
+        const authorH = c.author ? ccLineH : 0;
+        const dateH = c.date ? ccLineH : 0;
+        const itemH = Math.max(36 * scale, ccPadY * 2 + authorH + lines.length * ccLineH + dateH);
+
+        // Background
+        ctx.fillStyle = 'rgba(99, 102, 241, 0.06)';
+        roundRect(ctx, ccBlockX, ccCurY, ccBlockW, itemH, ccRadius);
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(99, 102, 241, 0.12)';
+        ctx.lineWidth = 1;
+        roundRect(ctx, ccBlockX, ccCurY, ccBlockW, itemH, ccRadius);
+        ctx.stroke();
+
+        let textOffsetY = ccCurY + ccPadY;
+
+        // Author
+        if (c.author) {
+          const aColor = typeof getAuthorColor === 'function' ? getAuthorColor(c.author) : 'rgba(99, 102, 241, 0.8)';
+          const shapeName = typeof getAuthorShapeName === 'function' ? getAuthorShapeName(c.author) : 'circle';
+          const ss = ccFontSize * 1.2;
+          const sx = ccBlockX + ccPadX;
+          const sy = textOffsetY + (ccLineH - ss) / 2;
+          ctx.fillStyle = aColor;
+          if (shapeName === 'square') {
+            ctx.fillRect(sx, sy, ss, ss);
+          } else if (shapeName === 'circle') {
+            ctx.beginPath(); ctx.arc(sx + ss/2, sy + ss/2, ss/2, 0, Math.PI*2); ctx.fill();
+          } else if (shapeName === 'triangle') {
+            ctx.beginPath(); ctx.moveTo(sx + ss/2, sy); ctx.lineTo(sx + ss, sy + ss); ctx.lineTo(sx, sy + ss); ctx.closePath(); ctx.fill();
+          } else if (shapeName === 'diamond') {
+            ctx.beginPath(); ctx.moveTo(sx + ss/2, sy); ctx.lineTo(sx + ss, sy + ss/2); ctx.lineTo(sx + ss/2, sy + ss); ctx.lineTo(sx, sy + ss/2); ctx.closePath(); ctx.fill();
+          } else if (shapeName === 'star') {
+            ctx.beginPath();
+            for (let si2 = 0; si2 < 5; si2++) {
+              const a1 = (si2 * 72 - 90) * Math.PI / 180;
+              const a2 = ((si2 * 72) + 36 - 90) * Math.PI / 180;
+              ctx.lineTo(sx + ss/2 + ss/2 * Math.cos(a1), sy + ss/2 + ss/2 * Math.sin(a1));
+              ctx.lineTo(sx + ss/2 + ss/4.5 * Math.cos(a2), sy + ss/2 + ss/4.5 * Math.sin(a2));
+            }
+            ctx.closePath(); ctx.fill();
+          }
+          const shapeW = ss + 5 * scale;
+          ctx.fillStyle = aColor;
+          ctx.font = authorFont;
+          ctx.textAlign = 'left';
+          ctx.textBaseline = 'top';
+          ctx.fillText(c.author, ccBlockX + ccPadX + shapeW, textOffsetY);
+          textOffsetY += ccLineH;
+        }
+
+        // Text
+        ctx.fillStyle = '#1a1a1a';
+        ctx.font = ccBodyFont;
+        ctx.textAlign = 'left';
+        ctx.textBaseline = 'top';
+        lines.forEach((l, li) => {
+          ctx.fillText(l, ccBlockX + ccPadX, textOffsetY + li * ccLineH);
+        });
+
+        // Date
+        if (c.date) {
+          ctx.fillStyle = 'rgba(26, 26, 26, 0.4)';
+          ctx.font = ccDateFont;
+          ctx.fillText(c.date, ccBlockX + ccPadX, textOffsetY + lines.length * ccLineH);
+        }
+
+        ccCurY += itemH + ccGap;
+      });
+    }
+
     // Comment button / comments
     const hasComments = b.comments && b.comments.length > 0;
 

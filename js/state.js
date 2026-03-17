@@ -351,6 +351,15 @@ function saveState() {
 
   // Sync structure to Firebase
   if (typeof firebaseSaveStructure === 'function') firebaseSaveStructure();
+
+  // Auto-refresh client screen if open for this project
+  if (typeof clientProjectId !== 'undefined' && clientProjectId === currentProjectId) {
+    const cs = document.getElementById('client-screen');
+    if (cs && cs.classList.contains('visible')) {
+      if (typeof renderClientPageList === 'function') renderClientPageList();
+      if (typeof renderClientBoards === 'function') renderClientBoards();
+    }
+  }
 }
 
 // Init IndexedDB and load images
@@ -392,6 +401,7 @@ function deleteProject(projectId) {
   // Remove data
   localStorage.removeItem('basewear_data_' + projectId);
   localStorage.removeItem('basewear_approvers_' + projectId);
+  localStorage.removeItem('basewear_client_users_' + projectId);
   // Delete IDB
   try { indexedDB.deleteDatabase('basewear_images_' + projectId); } catch(_) {}
   // Delete from Firebase
@@ -411,6 +421,45 @@ function deleteProject(projectId) {
       location.reload();
     }
   }
+}
+
+// ── Client users per project ──
+
+function _clientUsersKey(projectId) {
+  return 'basewear_client_users_' + (projectId || currentProjectId);
+}
+
+function getClientUsers(projectId) {
+  try {
+    return JSON.parse(localStorage.getItem(_clientUsersKey(projectId)) || '[]');
+  } catch(_) { return []; }
+}
+
+function saveClientUsers(projectId, users) {
+  localStorage.setItem(_clientUsersKey(projectId), JSON.stringify(users));
+}
+
+function addClientUser(projectId, name) {
+  const users = getClientUsers(projectId);
+  const token = Date.now().toString(36) + Math.random().toString(36).substr(2, 6);
+  const user = { id: token, name: name };
+  users.push(user);
+  saveClientUsers(projectId, users);
+  return user;
+}
+
+function removeClientUser(projectId, userId) {
+  const users = getClientUsers(projectId).filter(u => u.id !== userId);
+  saveClientUsers(projectId, users);
+}
+
+function getClientUserByToken(projectId, token) {
+  return getClientUsers(projectId).find(u => u.id === token) || null;
+}
+
+function getClientLink(projectId, userToken) {
+  const base = location.origin + location.pathname;
+  return base + '?client=' + projectId + '&user=' + userToken;
 }
 
 function renameProject(projectId, newName) {
